@@ -1,3 +1,43 @@
-namespace xml_editor {
+#ifndef XML_EDITOR_TREE_HPP
+#define XML_EDITOR_TREE_HPP
 
+#include <string>
+#include <vector>
+
+namespace xml_editor {
+    class TreeNode {
+    private:
+        std::string tag;
+        std::string value;
+        std::vector<TreeNode*> children;
+
+    public:
+        TreeNode(const std::string& tag, const std::string& value);
+        ~TreeNode();
+
+        void add_child(TreeNode* child);
+
+        // Delete copy, assignment operators to avoid double deletion
+        TreeNode(const TreeNode&) = delete;
+        TreeNode& operator=(const TreeNode&) = delete;
+
+        friend class Tree;
+    };
+
+    class Tree {
+    private:
+        TreeNode* root;
+
+    public:
+        Tree(TreeNode* root);
+        ~Tree();
+
+        // Delete copy, assignment operators to avoid double deletion
+        Tree(const Tree&) = delete;
+        Tree& operator=(const Tree&) = delete;
+
+        TreeNode* get_root() const;
+    };
 }
+
+#endif
