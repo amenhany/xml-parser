@@ -7,7 +7,7 @@ namespace xml_editor::xml {
   static vector < string > fixedLines;
 
   bool is_valid(const string & filename) {
-    ifstream file(filename); //opens file
+    ifstream file(filename); //opens file reads it line by line
     if (!file.is_open()) {
       allErrors.push_back({
         0,
@@ -24,7 +24,7 @@ namespace xml_editor::xml {
 
     while (getline(file, line)) {
       lineNumber++;
-      fixedLines.push_back(line);
+      string newLine=line;
 
       size_t pos = 0;
 
@@ -50,29 +50,38 @@ namespace xml_editor::xml {
           continue;
         }
 
-        if (tag[0] == '/') {
+        if (tag[0] == '/') { //is a closing tag
           string closing = tag.substr(1);
 
-          if (tags.empty()) { //nothing is stack,there is a closing tag
+          if (tags.empty()) { //nothing in stack,there is a closing tag
             allErrors.push_back({
               lineNumber,
               "Closing tag </" + closing + "> has no opening tag"
             });
-          } else if (tags.top() != closing) { //closing tag doesn't match top of stack
+            newLine.insert(pos, "<" + closing + ">"); //add the missing opening tag
+            pos += closing.size() + 2; 
+            tags.push(closing); 
+          } 
+         if (!tags.empty() && tags.top() != closing) { //closing tag doesn't match top of stack
             allErrors.push_back({
               lineNumber,
               "Mismatched tag: expected </" + tags.top() + "> but found </" + closing + ">"
             });
-            tags.pop();
-          } else { //correct: top=closing tag
-            tags.pop();
-          }
-        } else { //was an opening tag --> push in stack
+            newLine.replace(pos + 1, closing.size(), tags.top()); //added a closing tag for top of stack
+            closing = tags.top();
+          } 
+          if (!tags.empty() && tags.top() == closing) { //correct closing tag
+                    tags.pop(); 
+        }
+        } 
+        else { //was an opening tag --> push in stack
           tags.push(tag);
         }
 
         pos = endPos + 1;
       }
+
+        fixedLines.push_back(newLine);
     }
 
     int lastLine = fixedLines.size();
