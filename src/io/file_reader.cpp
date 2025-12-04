@@ -7,17 +7,17 @@
 using namespace std;
 namespace xml_editor::io {
 
-    static std::string fileRead(const std::string &fileName){
+    std::string fileRead(const std::string &fileName){
     ifstream file(fileName);
     if (!file.is_open()) {
          cerr << "Could not open the file - '" << fileName << "'" << endl;
-         return nullptr ;
+         return std::string();
     }
 
     if (file.peek() == ifstream::traits_type::eof())
     {
-        cout << "File is empty.";
-        return nullptr ;
+        cout << "File is empty." << endl;
+        return std::string();
     }
 
     std::stringstream buffer;
