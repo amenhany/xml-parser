@@ -28,37 +28,39 @@ namespace xml_editor::xml
         skipWhitespace();
 
 
-         while (position < input.size())
+          while (position < input.size())
           {
                 size_t start;
                     if (input[position]=='<')  //Tag detected
                     {
 
                         //Closing tag
-                    if(input[position+1]=='/')
+                    if(position + 1 < input.size() && input[position+1]=='/')  
                     {
                         position+=2; 
-                        size_t start=position; //Start of tag name
+                        start=position; 
 
                         while(input[position]!='>'){  
                             position++;
                         }
 
                         nodeStack.pop(); //tagName is complete
-                        position++;  
+                        position++;
+                        skipWhitespace();  
                         
                     }
                         //Opening tag
                     else
                    {
                     position++; 
-                    size_t start = position; //Start of tag name
+                     start = position; //Start of tag name
                    }
 
                     while(position < input.size() && input[position] != '>' && input[position] != '/')   //idk if i should consider self closing tags or not 
                     {  
                     
                     position++;
+                    }
                     
 
                     string tagName = input.substr(start, position - start); //Extract tag name
@@ -74,9 +76,15 @@ namespace xml_editor::xml
                     {
                         root = newNode; //If stack is empty, this is the root node (lowest level in stack)
                     }
+                     nodeStack.push(newNode);
 
-        
-                  }
+                    
+                     while(position < input.size() && input[position] != '>' && input[position] != '/') 
+                    {
+                        position++;
+                    }
+
+                     
               }
                
                     //Body text
@@ -111,20 +119,12 @@ namespace xml_editor::xml
                      }
                  }
 
+                      skipWhitespace();
+
             }
 
-                    skipWhitespace(); //Skip whitespace after body text
+                   
         }
                     return new Tree(root);  //Return the constructed tree
     }
 }
-
-
-        
-
-    
-
-
-
-		
-	
