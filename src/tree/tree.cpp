@@ -10,6 +10,8 @@ namespace xml_editor {
 
     void TreeNode::add_child(TreeNode* child) {
         children.push_back(child);
+       
+
     }
 
 
