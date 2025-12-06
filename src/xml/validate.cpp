@@ -1,7 +1,6 @@
 #include "xml_editor/xml.hpp"
 #include <iostream>
 #include <fstream>
-#include <string>
 #include <stack>
 #include <vector>
 
@@ -10,7 +9,7 @@ namespace xml_editor::xml {
     static std::vector < std::string > fixed_lines;
 
     bool is_valid(const std::string& filename) {
-        std::ifstream file(filename); //opens file reads it line by line
+        std::ifstream file("resources/" + filename); //opens file reads it line by line
         if (!file.is_open()) {
             all_errors.push_back({
               0,

@@ -10,9 +10,12 @@ namespace xml_editor {
 
     void TreeNode::add_child(TreeNode* child) {
         children.push_back(child);
-       
-
     }
+
+    void TreeNode::set_value(const std::string& val) { this->value = val; }
+    std::string TreeNode::get_value() { return this->value; }
+    std::string TreeNode::get_tag() { return this->tag; }
+    std::vector<TreeNode*> TreeNode::get_children() { return this->children; }
 
 
     Tree::Tree(TreeNode* root) : root(root) {}
@@ -20,4 +23,6 @@ namespace xml_editor {
     Tree::~Tree() {
         if (root) delete root;
     }
+
+    TreeNode* Tree::get_root() const { return this->root; }
 }
