@@ -1,130 +1,105 @@
-
 #include "xml_editor/xml.hpp"
 #include <stack>
 #include <cctype>
-using namespace std;
 
-namespace xml_editor::xml 
-{
-	Tree* parse(const std::string& input)
-     {
+namespace xml_editor::xml {
 
-        if (input.empty())
-        {
-            return nullptr;   //check if input is empty
+    void skip_whitespaces(size_t& pos, const std::string& input) {
+        while (pos < input.size() && isspace(input[pos]))
+            pos++;
+    };
+
+    std::string trim_string(const std::string& body) {
+        size_t first_ch = 0;
+        while (first_ch < body.size() && isspace(body[first_ch])) {
+            first_ch++; // remove spaces until first char
         }
 
-        size_t position = 0;    //current position is at the beginning of string
-        stack<TreeNode*> nodeStack;  //stack is empty for TreeNode Pointers
-        TreeNode* root = nullptr;    //Root in TreeNode pointer initialized to null
+        size_t last_ch = body.size();
 
-     
+        while (last_ch > first_ch && isspace(body[last_ch - 1])) {
+            last_ch--;  // remove spaces until last char
+        }
 
-        //Skip spaces
-        auto skipWhitespace = [&]() {
-             while (position < input.size() && isspace(input[position])) 
-             position++;
-            };
-        skipWhitespace();
+        if (last_ch > first_ch) {
+            std::string cleaned = body.substr(first_ch, last_ch - first_ch);
+            return cleaned;
+        }
 
+        return body;
+    }
 
-          while (position < input.size())
-          {
-                size_t start;
-                    if (input[position]=='<')  //Tag detected
-                    {
+    Tree* parse(const std::string& input) {
 
-                        //Closing tag
-                    if(position + 1 < input.size() && input[position+1]=='/')  
-                    {
-                        position+=2; 
-                        start=position; 
+        if (input.empty()) {
+            return nullptr;
+        }
 
-                        while(input[position]!='>'){  
-                            position++;
-                        }
+        size_t pos = 0;
+        std::stack<TreeNode*> nodes;
+        TreeNode* root = nullptr;
+        skip_whitespaces(pos, input);
 
-                        nodeStack.pop(); //tagName is complete
-                        position++;
-                        skipWhitespace();  
-                        
-                    }
-                        //Opening tag
-                    else
-                   {
-                    position++; 
-                     start = position; //Start of tag name
-                   }
+        while (pos < input.size()) {
+            size_t start;
+            if (input[pos] == '<') {
 
-                    while(position < input.size() && input[position] != '>' && input[position] != '/')   //idk if i should consider self closing tags or not 
-                    {  
-                    
-                    position++;
-                    }
-                    
+                // closing tag
+                if (pos + 1 < input.size() && input[pos + 1] == '/') {
+                    pos += 2;
+                    start = pos;
 
-                    string tagName = input.substr(start, position - start); //Extract tag name
-                    
-                    //Create new Node
-                    TreeNode* newNode = new TreeNode(tagName, ""); 
-
-                   if (!nodeStack.empty())
-                    {
-                        nodeStack.top()->add_child(newNode); //adding child to parent node
-                    } 
-                    else
-                    {
-                        root = newNode; //If stack is empty, this is the root node (lowest level in stack)
-                    }
-                     nodeStack.push(newNode);
-
-                    
-                     while(position < input.size() && input[position] != '>' && input[position] != '/') 
-                    {
-                        position++;
+                    while (input[pos] != '>') {
+                        pos++;
                     }
 
-                     
-              }
-               
-                    //Body text
-             else
-             {
-                size_t start = position; //Start of body text
-                while(position < input.size() && input[position] != '<')
-            
-                 position++;
-                    
-             
-                string body = input.substr(start, position - start);
+                    nodes.pop(); // tag name is complete
+                    pos++;
+                    skip_whitespaces(pos, input);
+                }
+                else { // open tag
+                    pos++;
+                    start = pos; // start of tag name
+                }
 
-                if (!nodeStack.empty() && !body.empty())
-                {
+                while (pos < input.size() && input[pos] != '>' && input[pos] != '/') {
+                    pos++;
+                }
 
-                size_t first_ch = 0;
-                    while (first_ch < body.size() && isspace(body[first_ch])) 
-                    
-                         first_ch++;  //skip spaces until reach first char
-                    
-                    size_t last_ch = body.size();
+                std::string tagName = input.substr(start, pos - start); // extract tag name
+                TreeNode* newNode = new TreeNode(tagName, "");
 
-                     while (last_ch > first_ch && isspace(body[last_ch - 1]))
-                 
-                         last_ch--;  //remove spaces until reach last char
-                 
-                     if (last_ch > first_ch)
-                     {
-                            string cleaned = body.substr(first_ch, last_ch - first_ch);
-                            nodeStack.top()->set_value(cleaned); //current node being parsed & set its body text
-                     }
-                 }
+                if (!nodes.empty()) {
+                    nodes.top()->add_child(newNode); // adding child to parent node
+                }
+                else {
+                    root = newNode; // If stack is empty, this is the root node (lowest level in stack)
+                }
+                nodes.push(newNode);
 
-                      skipWhitespace();
 
+                while (pos < input.size() && input[pos] != '>' && input[pos] != '/') {
+                    pos++;
+                }
             }
 
-                   
+            // Body text
+            else {
+                size_t start = pos; //Start of body text
+                while (pos < input.size() && input[pos] != '<') {
+                    pos++;
+                }
+
+                std::string body = input.substr(start, pos - start);
+
+                if (!nodes.empty() && !body.empty()) {
+                    std::string cleaned = trim_string(body);
+                    nodes.top()->set_value(cleaned);
+                }
+
+                skip_whitespaces(pos, input);
+            }
         }
-                    return new Tree(root);  //Return the constructed tree
+        return new Tree(root);  //Return the constructed tree
     }
 }
