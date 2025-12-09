@@ -6,10 +6,11 @@
 
 namespace xml_editor {
     class TreeNode {
-    private:
+    public:
         std::string tag;
         std::string value;
         std::vector<TreeNode*> children;
+        TreeNode* parent;
 
     public:
         TreeNode(const std::string& tag, const std::string& value);
