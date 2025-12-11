@@ -2,7 +2,6 @@
 #include <stack>
 #include <cctype>
 #include <iostream>
-#include <fstream>
 
 namespace xml_editor::xml {
 
@@ -45,7 +44,7 @@ namespace xml_editor::xml {
         while (pos < input.size()) {
             size_t start;
             if (input[pos] == '<') {
-                pos++; 
+                pos++;
 
                 if (input[pos] == '/') {
                     pos++; // Skip '/'
@@ -91,7 +90,7 @@ namespace xml_editor::xml {
                         pos++;
                     }
 
-                    
+
                     TreeNode* newNode = new TreeNode(tagContent, "");
 
                     if (!nodes.empty()) {

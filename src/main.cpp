@@ -10,19 +10,22 @@ using std::string;
 
 void tree_traverse(TreeNode* node) {
     if (!node) return;
+
     std::queue<TreeNode*> q;
     q.push(node);
 
     while (!q.empty()) {
         int size = q.size();
-        vector<TreeNode*> children = node->get_children();
-        for (int i = 0; i < size; i++) {
+        while (size--) {
             TreeNode* curr = q.front();
             q.pop();
+
             cout << curr->get_tag() << ' ';
-            for (auto child : children)
+
+            for (auto child : curr->get_children())
                 if (child) q.push(child);
         }
+        cout << endl;
     }
 }
 
@@ -40,7 +43,9 @@ int main() {
     vector<xml::XMLError> errors = xml::get_errors();
 
     Tree* tree = xml::parse(input);
-    tree_traverse2(tree->get_root());
+    // tree_traverse(tree->get_root());
+    string json = xml::to_json(tree);
+    cout << json << endl;
 
     for (auto error : errors) {
         cout << error.line << ' ' << error.message << endl;
