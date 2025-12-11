@@ -1,32 +1,33 @@
 #include "xml_editor/xml.hpp"
 #include <stack>
 #include <cctype>
+#include <iostream>
+#include <fstream>
 
 namespace xml_editor::xml {
 
     void skip_whitespaces(size_t& pos, const std::string& input) {
-        while (pos < input.size() && isspace(input[pos]))
+        while (pos < input.size() && isspace(static_cast<unsigned char>(input[pos])))
             pos++;
     };
 
     std::string trim_string(const std::string& body) {
         size_t first_ch = 0;
-        while (first_ch < body.size() && isspace(body[first_ch])) {
+        while (first_ch < body.size() && isspace(static_cast<unsigned char>(body[first_ch]))) {
             first_ch++; // remove spaces until first char
         }
 
         size_t last_ch = body.size();
 
-        while (last_ch > first_ch && isspace(body[last_ch - 1])) {
+        while (last_ch > first_ch && isspace(static_cast<unsigned char>(body[last_ch - 1]))) {
             last_ch--;  // remove spaces until last char
         }
 
         if (last_ch > first_ch) {
-            std::string cleaned = body.substr(first_ch, last_ch - first_ch);
-            return cleaned;
+            return body.substr(first_ch, last_ch - first_ch);
         }
 
-        return body;
+        return "";
     }
 
     Tree* parse(const std::string& input) {
@@ -38,68 +39,113 @@ namespace xml_editor::xml {
         size_t pos = 0;
         std::stack<TreeNode*> nodes;
         TreeNode* root = nullptr;
+
         skip_whitespaces(pos, input);
 
         while (pos < input.size()) {
             size_t start;
             if (input[pos] == '<') {
+                pos++; 
 
-                // closing tag
-                if (pos + 1 < input.size() && input[pos + 1] == '/') {
-                    pos += 2;
+                if (input[pos] == '/') {
+                    pos++; // Skip '/'
                     start = pos;
 
-                    while (input[pos] != '>') {
+                    // Extract closing tag name
+                    while (pos < input.size() && input[pos] != '>') {
                         pos++;
                     }
 
-                    nodes.pop(); // tag name is complete
+                    std::string closingTag = input.substr(start, pos - start);
+                    closingTag = trim_string(closingTag);
+
+                    if (!nodes.empty()) {
+                        if (nodes.top()->get_tag() != closingTag) {
+                            std::cerr << "Error: Mismatched tags"
+                                << nodes.top()->get_tag()
+                                << "> but found </" << closingTag << ">" << std::endl;
+                        }
+                        nodes.pop();
+                    }
+
                     pos++;
                     skip_whitespaces(pos, input);
                 }
-                else { // open tag
-                    pos++;
-                    start = pos; // start of tag name
-                }
-
-                while (pos < input.size() && input[pos] != '>' && input[pos] != '/') {
-                    pos++;
-                }
-
-                std::string tagName = input.substr(start, pos - start); // extract tag name
-                TreeNode* newNode = new TreeNode(tagName, "");
-
-                if (!nodes.empty()) {
-                    nodes.top()->add_child(newNode); // adding child to parent node
-                }
                 else {
-                    root = newNode; // If stack is empty, this is the root node (lowest level in stack)
-                }
-                nodes.push(newNode);
+                    start = pos;
 
+                    while (pos < input.size() && input[pos] != '>' && !(input[pos] == '/' && pos + 1 < input.size() && input[pos + 1] == '>')) {
+                        pos++;
+                    }
 
-                while (pos < input.size() && input[pos] != '>' && input[pos] != '/') {
-                    pos++;
+                    std::string tagContent = input.substr(start, pos - start);
+                    tagContent = trim_string(tagContent);
+
+                    bool isSelfClosing = false;
+                    if (pos < input.size() && input[pos] == '/' && pos + 1 < input.size() && input[pos + 1] == '>') {
+                        isSelfClosing = true;
+                        pos++;
+                    }
+
+                    if (pos < input.size() && input[pos] == '>') {
+                        pos++;
+                    }
+
+                    
+                    TreeNode* newNode = new TreeNode(tagContent, "");
+
+                    if (!nodes.empty()) {
+                        nodes.top()->add_child(newNode);
+                        if (!isSelfClosing) {
+                            nodes.push(newNode);
+                        }
+                    }
+                    else {
+                        root = newNode;
+                        if (!isSelfClosing) {
+                            nodes.push(newNode);
+                        }
+                    }
+
+                    skip_whitespaces(pos, input);
                 }
             }
 
-            // Body text
             else {
-                size_t start = pos; //Start of body text
+
+                // Extract text content
+                start = pos;
+
                 while (pos < input.size() && input[pos] != '<') {
                     pos++;
                 }
 
-                std::string body = input.substr(start, pos - start);
+                std::string textContent = input.substr(start, pos - start);
+                std::string trimmedContent = trim_string(textContent);
 
-                if (!nodes.empty() && !body.empty()) {
-                    std::string cleaned = trim_string(body);
-                    nodes.top()->set_value(cleaned);
+                if (!trimmedContent.empty()) {
+                    if (!nodes.empty()) {
+                        nodes.top()->set_value(trimmedContent);
+                    }
                 }
 
                 skip_whitespaces(pos, input);
             }
         }
-        return new Tree(root);  //Return the constructed tree
+
+        if (!nodes.empty()) {
+            std::cerr << "Error: Unclosed tags found" << std::endl;
+            while (!nodes.empty()) {
+                std::cerr << "  <" << nodes.top()->get_tag() << ">" << std::endl;
+                nodes.pop();
+            }
+
+            if (root) {
+                delete root;
+                root = nullptr;
+            }
+        }
+
+        return root ? new Tree(root) : nullptr;
     }
 }
