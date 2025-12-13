@@ -58,12 +58,38 @@ namespace xml_editor::xml {
                         tags.push(closing);
                     }
                     if (!tags.empty() && tags.top() != closing) { //closing tag doesn't match top of stack
-                        all_errors.push_back({
-                          lineNumber,
-                          "Mismatched tag: expected </" + tags.top() + "> but found </" + closing + ">"
-                            });
-                        newLine.replace(pos + 1, closing.size(), tags.top()); //added a closing tag for top of stack
-                        closing = tags.top();
+
+                        bool found = false;
+                        std::stack<std::string> temp = tags;
+                        while (!temp.empty()) {
+                            if (temp.top() == closing) {
+                                found = true;
+                                break;
+                            }
+                            temp.pop();
+                        }
+
+                        if (found) {
+                            // Case 1: missing closing tag(s)
+                            while (!tags.empty() && tags.top() != closing) {
+                                all_errors.push_back({
+                                    lineNumber,
+                                    "Missing closing tag </" + tags.top() + "> added"
+                                    });
+                                fixed_lines.push_back(std::string((tags.size() - 1) * 4, ' ') + "</" + tags.top() + ">");
+                                tags.pop();
+                            }
+                            // do NOT log mismatched here
+                        }
+                        else {
+                            // Case 2: real mismatched tag (e.g. </id>)
+                            all_errors.push_back({
+                                lineNumber,
+                                "Mismatched tag: expected </" + tags.top() + "> but found </" + closing + ">"
+                                });
+                            newLine.replace(pos + 2, closing.size(), tags.top());
+                            closing = tags.top();
+                        }
                     }
                     if (!tags.empty() && tags.top() == closing) { //correct closing tag
                         tags.pop();
