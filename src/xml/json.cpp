@@ -24,16 +24,47 @@ namespace xml_editor::xml {
         return false;
     }
 
+    // Check if this is the last twin
+    static bool is_last_twin(TreeNode* parent, TreeNode* node) {
+        if (!parent || !node) return true;
+        
+        bool found = false;
+        for (auto child : parent->children) {
+            if (child == node) {
+                found = true;
+            } else if (found && child->tag == node->tag) {
+                return false;
+            }
+        }
+        return true;
+    }
+    
+    // Check if all children have the same tag
+    static bool parent_has_twin_children(TreeNode* node) {
+        if (!node || node->children.empty()) return false;
+        if (node->children.size() == 1) return false;
+        
+        string first_tag = node->children[0]->tag;
+        for (auto child : node->children) {
+            if (child->tag != first_tag) return false;
+        }
+        return true;
+    }
+
     // Recursive traversal to build JSON
-    void json_traversal(TreeNode* node, TreeNode* prev_node, bool last, int order, string& json, int level = 1) {
+    void json_traversal(TreeNode* node, TreeNode* prev_node, bool last, int order, string& json, int level ) {
 
-        // Check if this node's tag matches previous node's tag
-        bool is_same_tag = (node->tag == prev_node->tag);
+        // Check if all siblings have same tag
+        bool in_twin_array = parent_has_twin_children(node->parent);
 
-        if (is_same_tag) {
+        // Check if this node's tag matches previous node's tag (and prev is sibling, not parent)
+        bool is_same_tag = (prev_node && prev_node->parent == node->parent && node->tag == prev_node->tag);
+
+        if (is_same_tag && !in_twin_array) {
             // This is a "twin" sibling - part of an array in JSON
             if (node->children.size() > 0) {
                 // Node has children
+                json += ",\n"; 
                 json += tab(level) + "{\n";
                 for (int i = 0; i < node->children.size(); i++) {
 
@@ -53,25 +84,27 @@ namespace xml_editor::xml {
             }
             else {
                 // Leaf node
-                json += tab(level) + "\"" + node->value + "\"";
+                json += ",\n"; 
+                json += tab(level) + "\"" + node->value + "\"";  
             }
-            json += "\n";
 
             // Check if we need to close the array
-            if (last) {
+            if (is_last_twin(node->parent, node)) {
+                json += "\n";
                 json += tab(level - 1) + "]";
+                if (!last) json += ",";
                 json += "\n";
             }
             return;
         }
 
         //check if this node has sibling twins
-        if (has_twins(node->parent, node->tag)) {
+        if (has_twins(node->parent, node->tag) && !in_twin_array) {
             // This node starts an array of siblings with the same tag
-            json += tab(level) + "\"" + node->tag + "\": [\n";
+            json += tab(level - 1) + "\"" + node->tag + "\": [\n";
 
             if (node->children.size() > 0) {
-                json += tab(level + 1) + "{\n";
+                json += tab(level) + "{\n";
 
                 for (int i = 0; i < node->children.size(); i++) {
 
@@ -85,43 +118,78 @@ namespace xml_editor::xml {
                     }
                     bool is_last_child = (i == node->children.size() - 1);
 
-                    json_traversal(child, prev_node, is_last_child, i, json, level + 2);
+                    json_traversal(child, prev_node, is_last_child, i, json, level + 1);
                 }
-                json += tab(level + 1) + "}";
+                json += tab(level) + "}";
             }
             else {
-                json += tab(level + 1) + "\"" + node->value + "\"";
+                json += tab(level) + "\"" + node->value+ "\"";
             }
-            if (!last) json += ",";
-            json += "\n";
             return;
         }
 
         // No twins
         if (node->children.size() > 0) {
-            // Node has children
-            json += tab(level) + "\"" + node->tag + "\": {\n";
+            // Check if this node has twin children
+            bool has_twin_children = parent_has_twin_children(node);
 
-            for (int i = 0; i < node->children.size(); i++) {
-
-                TreeNode* child = node->children[i];
-
-                if (i == 0) {
-                    prev_node = node;
+            if (has_twin_children) {
+                // This node's children are twins
+                if (!in_twin_array) {
+                    json += tab(level) + "\"" + node->tag + "\": [\n";
+                } else {
+                    json += tab(level) + "[\n";
                 }
-                else {
-                    prev_node = node->children[i - 1];
-                }
-                bool is_last_child = (i == node->children.size() - 1);
+                
+                for (int i = 0; i < node->children.size(); i++) {
+                    TreeNode* child = node->children[i];
+                    
+                    if (i == 0) {
+                        prev_node = node;
+                    }
+                    else {
+                        prev_node = node->children[i - 1];
+                    }
+                    bool is_last_child = (i == node->children.size() - 1);
 
-                json_traversal(child, prev_node, is_last_child, i, json, level + 1);
+                    json_traversal(child, prev_node, is_last_child, i, json, level + 1);
+                }
+                
+                json += tab(level) + "]";
             }
+            else {
+                // Normal node with children
+                if (!in_twin_array) {
+                    json += tab(level) + "\"" + node->tag + "\": {\n";
+                } else {
+                    json += tab(level) + "{\n";
+                }
 
-            json += tab(level) + "}";
+                for (int i = 0; i < node->children.size(); i++) {
+
+                    TreeNode* child = node->children[i];
+
+                    if (i == 0) {
+                        prev_node = node;
+                    }
+                    else {
+                        prev_node = node->children[i - 1];
+                    }
+                    bool is_last_child = (i == node->children.size() - 1);
+
+                    json_traversal(child, prev_node, is_last_child, i, json, level + 1);
+                }
+
+                json += tab(level) + "}";
+            }
         }
         else {
             // Leaf node
-            json += tab(level) + "\"" + node->tag + "\": \"" + node->value + "\"";
+            if (!in_twin_array) {
+                json += tab(level) + "\"" + node->tag + "\": \"" + node->value+ "\"";
+            } else {
+                json += tab(level) + "\"" + node->value  + "\"";
+            }
         }
         if (!last) json += ",";
         json += "\n";
@@ -137,10 +205,10 @@ namespace xml_editor::xml {
 
         // Root object
         json += "{\n";
-        json += "\t\"" + root->tag + "\": {\n";
+        json += "\t\"" + root->tag + "\": [\n";
 
         // Traverse root's children
-        for (size_t i = 0; i < root->children.size(); i++) {
+        for (int i = 0; i < root->children.size(); i++) {
 
             TreeNode* child = root->children[i];
             if (i == 0) {
@@ -155,8 +223,8 @@ namespace xml_editor::xml {
             json_traversal(child, prev_node, is_last, i, json, 2);
         }
 
-        json += "\t}\n";
-        json += "}";
+        json += "\t]\n";
+        json += "}\n";
         return json;
     }
 }
