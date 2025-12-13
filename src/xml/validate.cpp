@@ -1,6 +1,6 @@
 #include "xml_editor/xml.hpp"
 #include <iostream>
-#include <fstream>
+#include <sstream>
 #include <stack>
 #include <vector>
 
@@ -8,15 +8,8 @@ namespace xml_editor::xml {
     static std::vector < XMLError > all_errors;
     static std::vector < std::string > fixed_lines;
 
-    bool is_valid(const std::string& filename) {
-        std::ifstream file("resources/" + filename); //opens file reads it line by line
-        if (!file.is_open()) {
-            all_errors.push_back({
-              0,
-              "Cannot open file"
-                });
-            return false;
-        }
+    bool is_valid(const std::string& xmlText) {
+        std::stringstream ss(xmlText);
 
         std::stack < std::string > tags;
         std::string line;
@@ -24,7 +17,7 @@ namespace xml_editor::xml {
         all_errors.clear();
         fixed_lines.clear();
 
-        while (getline(file, line)) {
+        while (getline(ss, line)) {
             lineNumber++;
             std::string newLine = line;
 
