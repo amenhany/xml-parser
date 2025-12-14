@@ -131,8 +131,16 @@ namespace xml_editor::xml {
         return all_errors;
     }
 
-    const std::vector < std::string >& get_fixed_XML() {
+    const std::vector < std::string >& get_fixed_lines() {
         return fixed_lines;
+    }
+
+    std::string get_fixed_XML() {
+        std::string result = fixed_lines[0];
+        for (int i = 1; i < fixed_lines.size(); i++) {
+            result += '\n' + fixed_lines[i];
+        }
+        return result;
     }
 
     void print_errors() {

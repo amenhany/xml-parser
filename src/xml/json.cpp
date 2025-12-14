@@ -27,23 +27,24 @@ namespace xml_editor::xml {
     // Check if this is the last twin
     static bool is_last_twin(TreeNode* parent, TreeNode* node) {
         if (!parent || !node) return true;
-        
+
         bool found = false;
         for (auto child : parent->children) {
             if (child == node) {
                 found = true;
-            } else if (found && child->tag == node->tag) {
+            }
+            else if (found && child->tag == node->tag) {
                 return false;
             }
         }
         return true;
     }
-    
+
     // Check if all children have the same tag
     static bool parent_has_twin_children(TreeNode* node) {
         if (!node || node->children.empty()) return false;
         if (node->children.size() == 1) return false;
-        
+
         string first_tag = node->children[0]->tag;
         for (auto child : node->children) {
             if (child->tag != first_tag) return false;
@@ -52,7 +53,7 @@ namespace xml_editor::xml {
     }
 
     // Recursive traversal to build JSON
-    void json_traversal(TreeNode* node, TreeNode* prev_node, bool last, int order, string& json, int level ) {
+    void json_traversal(TreeNode* node, TreeNode* prev_node, bool last, int order, string& json, int level) {
 
         // Check if all siblings have same tag
         bool in_twin_array = parent_has_twin_children(node->parent);
@@ -64,7 +65,7 @@ namespace xml_editor::xml {
             // This is a "twin" sibling - part of an array in JSON
             if (node->children.size() > 0) {
                 // Node has children
-                json += ",\n"; 
+                json += ",\n";
                 json += tab(level) + "{\n";
                 for (int i = 0; i < node->children.size(); i++) {
 
@@ -84,8 +85,8 @@ namespace xml_editor::xml {
             }
             else {
                 // Leaf node
-                json += ",\n"; 
-                json += tab(level) + "\"" + node->value + "\"";  
+                json += ",\n";
+                json += tab(level) + "\"" + node->value + "\"";
             }
 
             // Check if we need to close the array
@@ -123,7 +124,7 @@ namespace xml_editor::xml {
                 json += tab(level) + "}";
             }
             else {
-                json += tab(level) + "\"" + node->value+ "\"";
+                json += tab(level) + "\"" + node->value + "\"";
             }
             return;
         }
@@ -137,13 +138,14 @@ namespace xml_editor::xml {
                 // This node's children are twins
                 if (!in_twin_array) {
                     json += tab(level) + "\"" + node->tag + "\": [\n";
-                } else {
+                }
+                else {
                     json += tab(level) + "[\n";
                 }
-                
+
                 for (int i = 0; i < node->children.size(); i++) {
                     TreeNode* child = node->children[i];
-                    
+
                     if (i == 0) {
                         prev_node = node;
                     }
@@ -154,14 +156,15 @@ namespace xml_editor::xml {
 
                     json_traversal(child, prev_node, is_last_child, i, json, level + 1);
                 }
-                
+
                 json += tab(level) + "]";
             }
             else {
                 // Normal node with children
                 if (!in_twin_array) {
                     json += tab(level) + "\"" + node->tag + "\": {\n";
-                } else {
+                }
+                else {
                     json += tab(level) + "{\n";
                 }
 
@@ -186,9 +189,10 @@ namespace xml_editor::xml {
         else {
             // Leaf node
             if (!in_twin_array) {
-                json += tab(level) + "\"" + node->tag + "\": \"" + node->value+ "\"";
-            } else {
-                json += tab(level) + "\"" + node->value  + "\"";
+                json += tab(level) + "\"" + node->tag + "\": \"" + node->value + "\"";
+            }
+            else {
+                json += tab(level) + "\"" + node->value + "\"";
             }
         }
         if (!last) json += ",";
@@ -196,7 +200,7 @@ namespace xml_editor::xml {
     }
 
     // divide tree into subtrees and convert to JSON
-    string to_json(Tree* xmlTree) {
+    string to_json(const Tree* xmlTree) {
         string json = "";
         TreeNode* prev_node;
         TreeNode* root = xmlTree->get_root();

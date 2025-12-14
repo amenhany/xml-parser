@@ -13,16 +13,17 @@ namespace xml_editor::xml {
 
     Tree* parse(const std::string& input);
 
-    bool is_valid(const std::string& filename);
+    bool is_valid(const std::string& xmlText);
     bool has_errors();
     int get_error_count();
     const std::vector<XMLError>& get_errors();
-    const std::vector<std::string>& get_fixed_XML();
+    std::string get_fixed_XML();
     void print_errors();
 
-    void format();
-    std::string to_json(Tree* tree);
-    void minify();
+    std::string format(const Tree* tree);
+    std::string to_json(const Tree* tree);
+    std::string minify(const Tree* tree);
+
     void compress();
     void decompress();
 }
