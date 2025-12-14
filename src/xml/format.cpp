@@ -7,7 +7,7 @@ namespace xml_editor::xml {
         out += indent + "<" + node->get_tag() + ">";
 
         for (TreeNode* child : node->get_children()) {
-            out += "\n";
+            out += '\n';
             recFormat(child, depth + 1, out);
         }
 
@@ -17,7 +17,7 @@ namespace xml_editor::xml {
                 size_t pos = 0;
                 while ((pos = value.find('\n', pos)) != std::string::npos) {
                     pos++;
-                    value.insert(pos, indent + "\t");
+                    value.insert(pos, indent + '\t');
                     pos += indent.length() + 1;
                 }
                 out += "\n" + indent + "\t" + value + "\n" + indent + end_tag;
@@ -29,7 +29,7 @@ namespace xml_editor::xml {
             out += "\n" + indent + end_tag;
     }
 
-    std::string format(Tree* tree) {
+    std::string format(const Tree* tree) {
         std::string result = "";
         recFormat(tree->get_root(), 0, result);
         return result;
