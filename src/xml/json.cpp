@@ -209,7 +209,13 @@ namespace xml_editor::xml {
 
         // Root object
         json += "{\n";
-        json += "\t\"" + root->tag + "\": [\n";
+        json += "\t\"" + root->tag + "\": ";
+        if (parent_has_twin_children(root)) {
+            json += "[\n";
+        }
+        else {
+            json += "{\n";
+        }        
 
         // Traverse root's children
         for (int i = 0; i < root->children.size(); i++) {
@@ -227,7 +233,13 @@ namespace xml_editor::xml {
             json_traversal(child, prev_node, is_last, i, json, 2);
         }
 
-        json += "\t]\n";
+        json += "\t";
+        if (parent_has_twin_children(root)) {
+            json += "]\n";
+        }
+        else {
+            json += "}\n";
+        }
         json += "}\n";
         return json;
     }
