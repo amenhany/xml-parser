@@ -3,8 +3,8 @@
 namespace xml_editor::cli {
     std::string run_cli(int argc, char** argv)
     {
-        std::string filePath;
-        std::string outputPath ="";
+        std::string filePath = "";
+        std::string outputPath = "";
 
         if(argv[0]=="xml_editor")
         {
@@ -14,35 +14,39 @@ namespace xml_editor::cli {
                 {
                     filePath = argv[3];
                     std::string getXml = io::file_read(filePath);
-                    bool isValid = xml::is_valid(getXml);
-                    if(!isValid)
+                    if(!getXml.empty())
                     {
-                        printf("%d Errors Found\n",xml::get_error_count);
-                        printf("Errors Log:\n");
-                        for (auto&& i : xml::get_errors())
-                        {
-                            printf("%s\n",i);
-                        }
 
-                    }
-                    else
-                    {
-                        printf("Valid File\n");
-                    }
-                    if(argv[4] == "-f")
-                    {
-                        if(argv[5] == "-o")
+                        bool isValid = xml::is_valid(getXml);
+                        if(!isValid)
                         {
-                            outputPath = argv[6];
+                            printf("%d Errors Found\n",xml::get_error_count);
+                            printf("Errors Log:\n");
+                            for (auto&& i : xml::get_errors())
+                            {
+                                printf("%s\n",i);
+                            }
+
+                        }
+                        else
+                        {
+                            printf("Valid File\n");
+                        }
+                        if(argv[4] == "-f")
+                        {
+                            if(argv[5] == "-o")
+                            {
+                                outputPath = argv[6];
+                            }
                         }
                     }
-                }
-                if (outputPath != "")
-                {
-                    std::string fixedFile = xml::get_fixed_XML();
-                    //File writer
-                    printf("File corrected at %s\n",outputPath);
-                }
+                    }
+                    if (outputPath != "")
+                    {
+                        std::string fixedFile = xml::get_fixed_XML();
+                        //File writer
+                        printf("File corrected at %s\n",outputPath);
+                    }
 
             }
 
@@ -52,16 +56,20 @@ namespace xml_editor::cli {
                 {
                     filePath = argv[3];
                     std::string notFormatted = io::file_read(filePath);
-                    Tree* parsed = xml::parse(notFormatted);
-                    std::string formatted = xml::format(parsed);
-                    if (argv[4] == "-o")
+                    if (!notFormatted.empty())
                     {
-                        outputPath = argv[5];
+                        Tree* parsed = xml::parse(notFormatted);
+                        std::string formatted = xml::format(parsed);
+                        if (argv[4] == "-o")
+                        {
+                            outputPath = argv[5];
+                        }
+                        if (outputPath != "")
+                        {
+                            //file writer
+                        }
                     }
-                    if (outputPath != "")
-                    {
-                        //file writer
-                    }
+
 
                 }
             }
@@ -72,17 +80,19 @@ namespace xml_editor::cli {
                 {
                     filePath = argv[3];
                     std::string notFormatted = io::file_read(filePath);
-                    Tree* parsed = xml::parse(notFormatted);
-                    std::string formatted = xml::to_json(parsed);
-                    if (argv[4] == "-o")
+                    if (!notFormatted.empty())
                     {
-                        outputPath = argv[5];
+                        Tree* parsed = xml::parse(notFormatted);
+                        std::string formatted = xml::to_json(parsed);
+                        if (argv[4] == "-o")
+                        {
+                            outputPath = argv[5];
+                        }
+                        if (outputPath != "")
+                        {
+                            //file writer
+                        }
                     }
-                    if (outputPath != "")
-                    {
-                        //file writer
-                    }
-
                 }
             }
 
@@ -92,16 +102,20 @@ namespace xml_editor::cli {
                 {
                     filePath = argv[3];
                     std::string notFormatted = io::file_read(filePath);
-                    Tree* parsed = xml::parse(notFormatted);
-                    std::string formatted = xml::minify(parsed);
-                    if (argv[4] == "-o")
+                    if (!notFormatted.empty())
                     {
-                        outputPath = argv[5];
+                        Tree* parsed = xml::parse(notFormatted);
+                        std::string formatted = xml::minify(parsed);
+                        if (argv[4] == "-o")
+                        {
+                            outputPath = argv[5];
+                        }
+                        if (outputPath != "")
+                        {
+                            //file writer
+                        }
                     }
-                    if (outputPath != "")
-                    {
-                        //file writer
-                    }
+
 
                 }
             }
