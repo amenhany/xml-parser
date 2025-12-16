@@ -1,4 +1,5 @@
 #include <iostream>
+#include <queue>
 #include "xml_editor/io.hpp"
 #include "xml_editor/xml.hpp"
 

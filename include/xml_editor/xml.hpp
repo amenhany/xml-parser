@@ -24,7 +24,7 @@ namespace xml_editor::xml {
     std::string to_json(const Tree* tree);
     std::string minify(const Tree* tree);
 
-    void compress();
+    std::string compress(const Tree* tree);
     void decompress();
 }
 
