@@ -56,7 +56,7 @@ namespace xml_editor::xml {
     // Check if all children have the same tag
     static bool parent_has_twin_children(TreeNode* node) {
         if (!node || node->children.empty()) return false;
-        if (node->children.size() == 1) return false;
+        if (node->children.size() == 1) return node->tag == node->children[0]->tag + 's';
 
         string first_tag = node->children[0]->tag;
         for (auto child : node->children) {
