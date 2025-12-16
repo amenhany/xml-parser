@@ -27,6 +27,12 @@ namespace {
         return argv[idx + 1];
     }
 
+    int get_tab_width(int argc, char** argv) {
+        int idx = find_flag("-t", argc, argv);
+        if (idx == -1 || idx + 1 >= argc) return 4;
+        return std::max(0, std::stoi(argv[idx + 1]));
+    }
+
     Command parse_command(const std::string& cmd) {
         if (cmd == "verify") return Command::Verify;
         if (cmd == "format") return Command::Format;
@@ -54,6 +60,12 @@ namespace xml_editor::cli {
 
         std::string inputText = io::file_read(filePath);
         if (inputText.empty()) return;
+
+        if (command == Command::Decompress) {
+            std::string outputText = xml::decompress(inputText);
+            io::file_write(outputPath, outputText);
+            return;
+        }
 
         bool isValid = xml::is_valid(inputText);
 
@@ -86,6 +98,8 @@ namespace xml_editor::cli {
             return;
         }
 
+        int tabWidth = get_tab_width(argc, argv);
+
         Tree* xmlTree = xml::parse(inputText);
         std::string outputText;
 
@@ -103,17 +117,14 @@ namespace xml_editor::cli {
             break;
 
         case Command::Compress:
-            // outputText = xml::compress(xmlTree);
-            break;
-
-        case Command::Decompress:
-            // outputText = xml::decompress(inputText);
+            outputText = xml::compress(xml::minify(inputText));
+            tabWidth = -1;
             break;
 
         default:
             std::cout << "Unknown command: " << argv[1] << std::endl;
         }
 
-        io::file_write(outputPath, outputText);
+        io::file_write(outputPath, outputText, tabWidth);
     }
 }
