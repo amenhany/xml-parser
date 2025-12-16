@@ -1,131 +1,121 @@
+#include "xml_editor/cli.hpp"
 #include "xml_editor/xml.hpp"
 #include "xml_editor/io.hpp"
+
+#include <iostream>
+
+namespace {
+
+    using xml_editor::cli::Command;
+
+    int find_flag(const char* flag, int argc, char** argv) {
+        for (int i = 1; i + 1 < argc; ++i) {
+            if (std::strcmp(argv[i], flag) == 0) return i;
+        }
+        return -1;
+    }
+
+    std::string get_filepath(int argc, char** argv) {
+        int idx = find_flag("-i", argc, argv);
+        if (idx == -1 || idx + 1 >= argc) return "";
+        return argv[idx + 1];
+    }
+
+    std::string get_output_path(int argc, char** argv) {
+        int idx = find_flag("-o", argc, argv);
+        if (idx == -1 || idx + 1 >= argc) return "";
+        return argv[idx + 1];
+    }
+
+    Command parse_command(const std::string& cmd) {
+        if (cmd == "verify") return Command::Verify;
+        if (cmd == "format") return Command::Format;
+        if (cmd == "mini") return Command::Minify;
+        if (cmd == "json") return Command::Json;
+        if (cmd == "compress") return Command::Compress;
+        if (cmd == "decompress") return Command::Decompress;
+        return Command::Unknown;
+    }
+}
+
+
 namespace xml_editor::cli {
-    std::string run_cli(int argc, char** argv)
-    {
-        std::string filePath = "";
-        std::string outputPath = "";
 
-        if(argv[0]=="xml_editor")
-        {
-            if(argv[1] == "verify")
-            {
-                if(argv[2] == "-i")
-                {
-                    filePath = argv[3];
-                    std::string getXml = io::file_read(filePath);
-                    if(!getXml.empty())
-                    {
+    void run_cli(int argc, char** argv) {
+        std::string filePath = get_filepath(argc, argv);
+        std::string outputPath = get_output_path(argc, argv);
 
-                        bool isValid = xml::is_valid(getXml);
-                        if(!isValid)
-                        {
-                            printf("%d Errors Found\n",xml::get_error_count);
-                            printf("Errors Log:\n");
-                            for (auto&& i : xml::get_errors())
-                            {
-                                printf("%s\n",i);
-                            }
+        Command command = parse_command(argv[1]);
 
-                        }
-                        else
-                        {
-                            printf("Valid File\n");
-                        }
-                        if(argv[4] == "-f")
-                        {
-                            if(argv[5] == "-o")
-                            {
-                                outputPath = argv[6];
-                            }
-                        }
-                    }
-                    }
-                    if (outputPath != "")
-                    {
-                        std::string fixedFile = xml::get_fixed_XML();
-                        //File writer
-                        printf("File corrected at %s\n",outputPath);
-                    }
-
-            }
-
-            else if(argv[1] == "format")
-            {
-                if(argv[2] == "-i")
-                {
-                    filePath = argv[3];
-                    std::string notFormatted = io::file_read(filePath);
-                    if (!notFormatted.empty())
-                    {
-                        Tree* parsed = xml::parse(notFormatted);
-                        std::string formatted = xml::format(parsed);
-                        if (argv[4] == "-o")
-                        {
-                            outputPath = argv[5];
-                        }
-                        if (outputPath != "")
-                        {
-                            //file writer
-                        }
-                    }
-
-
-                }
-            }
-
-            else if (argv[1] == "json")
-            {
-                if(argv[2] == "-i")
-                {
-                    filePath = argv[3];
-                    std::string notFormatted = io::file_read(filePath);
-                    if (!notFormatted.empty())
-                    {
-                        Tree* parsed = xml::parse(notFormatted);
-                        std::string formatted = xml::to_json(parsed);
-                        if (argv[4] == "-o")
-                        {
-                            outputPath = argv[5];
-                        }
-                        if (outputPath != "")
-                        {
-                            //file writer
-                        }
-                    }
-                }
-            }
-
-            else if (argv[1] == "minify")
-            {
-                if(argv[2] == "-i")
-                {
-                    filePath = argv[3];
-                    std::string notFormatted = io::file_read(filePath);
-                    if (!notFormatted.empty())
-                    {
-                        Tree* parsed = xml::parse(notFormatted);
-                        std::string formatted = xml::minify(parsed);
-                        if (argv[4] == "-o")
-                        {
-                            outputPath = argv[5];
-                        }
-                        if (outputPath != "")
-                        {
-                            //file writer
-                        }
-                    }
-
-
-                }
-            }
-
-            else
-            {
-                printf("Invalid expression\n");
-            }
-
+        if (filePath.empty()) {
+            std::cout << "Input file not specified\n";
+            return;
         }
 
+        std::string inputText = io::file_read(filePath);
+        if (inputText.empty()) return;
+
+        bool isValid = xml::is_valid(inputText);
+
+        if (command == Command::Verify || !isValid) {
+            int f = find_flag("-f", argc, argv);
+
+            if (isValid) {
+                std::cout << "Valid File\n";
+                return;
+            }
+
+            std::cout << xml::get_error_count() << " Errors Found\nError Log\n";
+            xml::print_errors();
+
+            if (f == -1) return;
+            if (outputPath.empty()) {
+                std::cout << "Output file not specified\n";
+                return;
+            }
+
+            std::string fixedFile = xml::get_fixed_XML();
+            // io::file_write(outputPath, fixedFile);
+            std::cout << "File corrected at " << outputPath << '\n';
+            std::cout << fixedFile;
+
+            return;
+        }
+
+        if (outputPath.empty()) {
+            std::cout << "Output file not specified\n";
+            return;
+        }
+
+        Tree* xmlTree = xml::parse(inputText);
+        std::string outputText;
+
+        switch (command) {
+        case Command::Format:
+            outputText = xml::format(xmlTree);
+            break;
+
+        case Command::Json:
+            outputText = xml::to_json(xmlTree);
+            break;
+
+        case Command::Minify:
+            // outputText = xml::minify(inputText);
+            break;
+
+        case Command::Compress:
+            // outputText = xml::compress(xmlTree);
+            break;
+
+        case Command::Decompress:
+            // outputText = xml::decompress(inputText);
+            break;
+
+        default:
+            std::cout << "Unknown command: " << argv[1] << std::endl;
+        }
+
+        std::cout << outputText;
+        // io::file_write(outputPath, outputText);
     }
 }

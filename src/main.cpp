@@ -1,5 +1,5 @@
 #include <iostream>
-#include "xml_editor/io.hpp"
+#include "xml_editor/cli.hpp"
 #include "xml_editor/xml.hpp"
 
 using namespace xml_editor;
@@ -37,18 +37,8 @@ void tree_traverse2(TreeNode* node) {
     }
 }
 
-int main() {
-    string input = io::file_read("input.xml");
-    bool is_valid = xml::is_valid("input.xml");
-    vector<xml::XMLError> errors = xml::get_errors();
-
-    Tree* tree = xml::parse(input);
-    // tree_traverse(tree->get_root());
-    string json = xml::to_json(tree);
-    cout << json << endl;
-
-    for (auto error : errors) {
-        cout << error.line << ' ' << error.message << endl;
+int main(int argc, char** argv) {
+    if (argc > 1) {
+        cli::run_cli(argc, argv);
     }
-    return 0;
 }
