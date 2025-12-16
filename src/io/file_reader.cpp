@@ -5,10 +5,10 @@
 
 namespace xml_editor::io {
 
-    std::string file_read(const std::string& file_name) {
-        std::ifstream file("resources/" + file_name);
+    std::string file_read(const std::string& fileName) {
+        std::ifstream file("resources/" + fileName);
         if (!file.is_open()) {
-            std::cerr << "Could not open the file - '" << file_name << "'" << std::endl;
+            std::cerr << "Could not open the file - '" << fileName << "'" << std::endl;
             return std::string();
         }
 
