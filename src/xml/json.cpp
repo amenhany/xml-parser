@@ -9,6 +9,18 @@ namespace xml_editor::xml {
         return string(level, '\t');
     }
 
+    static string format_value(const string& value ) {
+        string result = "";
+        for (char c : value) {
+            if (c == '\n') {
+                result += "\\n";
+            } else {
+                result += c;
+            }
+        }
+        return result;
+    }
+
     //check if a parent has multiple children with the same tag
     static bool has_twins(TreeNode* parent, const string& tag) {
         if (!parent || parent->children.empty())
@@ -61,7 +73,7 @@ namespace xml_editor::xml {
         // Check if this node's tag matches previous node's tag (and prev is sibling, not parent)
         bool is_same_tag = (prev_node && prev_node->parent == node->parent && node->tag == prev_node->tag);
 
-        if (is_same_tag && !in_twin_array) {
+        if (is_same_tag ) {
             // This is a "twin" sibling - part of an array in JSON
             if (node->children.size() > 0) {
                 // Node has children
@@ -86,7 +98,7 @@ namespace xml_editor::xml {
             else {
                 // Leaf node
                 json += ",\n";
-                json += tab(level) + "\"" + node->value + "\"";
+                json += tab(level) + "\"" + format_value(node->value) + "\"";
             }
 
             // Check if we need to close the array
@@ -124,7 +136,7 @@ namespace xml_editor::xml {
                 json += tab(level) + "}";
             }
             else {
-                json += tab(level) + "\"" + node->value + "\"";
+                json += tab(level) + "\"" + format_value(node->value) + "\"";
             }
             return;
         }
@@ -189,10 +201,10 @@ namespace xml_editor::xml {
         else {
             // Leaf node
             if (!in_twin_array) {
-                json += tab(level) + "\"" + node->tag + "\": \"" + node->value + "\"";
+                json += tab(level) + "\"" + node->tag + "\": \"" + format_value(node->value) + "\"";
             }
             else {
-                json += tab(level) + "\"" + node->value + "\"";
+                json += tab(level) + "\"" + format_value(node->value) + "\"";
             }
         }
         if (!last) json += ",";
