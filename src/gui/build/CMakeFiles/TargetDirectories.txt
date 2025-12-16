@@ -1,0 +1,9 @@
+E:/GitHub/xml-parser/src/gui/build/CMakeFiles/xml_gui.dir
+E:/GitHub/xml-parser/src/gui/build/CMakeFiles/edit_cache.dir
+E:/GitHub/xml-parser/src/gui/build/CMakeFiles/rebuild_cache.dir
+E:/GitHub/xml-parser/src/gui/build/CMakeFiles/list_install_components.dir
+E:/GitHub/xml-parser/src/gui/build/CMakeFiles/install.dir
+E:/GitHub/xml-parser/src/gui/build/CMakeFiles/install/local.dir
+E:/GitHub/xml-parser/src/gui/build/CMakeFiles/install/strip.dir
+E:/GitHub/xml-parser/src/gui/build/CMakeFiles/xml_gui_autogen_timestamp_deps.dir
+E:/GitHub/xml-parser/src/gui/build/CMakeFiles/xml_gui_autogen.dir

@@ -1,0 +1,1 @@
+-I"E:/GitHub/xml-parser/src/gui/build/xml_gui_autogen/include" -isystem E:/DSA/Qt/AppFiles/6.10.1/mingw_64/include/QtCore -isystem E:/DSA/Qt/AppFiles/6.10.1/mingw_64/include -isystem "E:/DSA/Qt/AppFiles/6.10.1/mingw_64/mkspecs/win32-g++" -isystem E:/DSA/Qt/AppFiles/6.10.1/mingw_64/include/QtWidgets -isystem E:/DSA/Qt/AppFiles/6.10.1/mingw_64/include/QtGui

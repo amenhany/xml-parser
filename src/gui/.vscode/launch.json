@@ -1,0 +1,19 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Debug xml_gui",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/build/xml_gui.exe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${workspaceFolder}/build",
+            "environment": [],
+            "externalConsole": true,
+            "preLaunchTask": "CMake: build",
+            "MIMode": "gdb",
+            "miDebuggerPath": "E:/DSA/Qt/AppFiles/Tools/mingw1310_64/bin/gdb.exe"
+        }
+    ]
+}
