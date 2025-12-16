@@ -9,18 +9,16 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Output directories
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 
-# Add include directory using modern target_include_directories
-# (PUBLIC = visible to this target and anything linking to it)
-add_executable(xml_editor)
+# Collect all .cpp files recursively
+file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS
+    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"`
+)
 
+# Create executable with sources
+add_executable(xml_editor ${SOURCES})
+
+# Add include directory
 target_include_directories(xml_editor
     PUBLIC
         ${CMAKE_CURRENT_SOURCE_DIR}/include
 )
-
-# Collect all .cpp files recursively
-file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
-)
-
-target_sources(xml_editor PRIVATE ${SOURCES})

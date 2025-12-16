@@ -17,6 +17,11 @@ namespace xml_editor {
         ~TreeNode();
 
         void add_child(TreeNode* child);
+        void set_value(const std::string& val);
+
+        std::string get_value() const;
+        std::string get_tag() const;
+        const std::vector<TreeNode*>& get_children() const;
 
         // Delete copy, assignment operators to avoid double deletion
         TreeNode(const TreeNode&) = delete;

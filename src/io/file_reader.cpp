@@ -1,31 +1,27 @@
 #include "xml_editor/io.hpp"
 #include <fstream>
-#include <string>
-#include <sstream>  
+#include <sstream>
 #include <iostream>
 
-using namespace std;
 namespace xml_editor::io {
 
-    std::string fileRead(const std::string &fileName){
-    ifstream file(fileName);
-    if (!file.is_open()) {
-         cerr << "Could not open the file - '" << fileName << "'" << endl;
-         return std::string();
+    std::string file_read(const std::string& fileName) {
+        std::ifstream file(fileName);
+        if (!file.is_open()) {
+            std::cerr << "Could not open the file - '" << fileName << "'" << std::endl;
+            return std::string();
+        }
+
+        if (file.peek() == std::ifstream::traits_type::eof()) {
+            std::cout << "File is empty." << std::endl;
+            return std::string();
+        }
+
+        std::stringstream buffer;
+        buffer << file.rdbuf();
+        return buffer.str();
     }
 
-    if (file.peek() == ifstream::traits_type::eof())
-    {
-        cout << "File is empty." << endl;
-        return std::string();
-    }
-
-    std::stringstream buffer;
-    buffer << file.rdbuf();   
-    return buffer.str();      
 }
-
-
-    }
 
 
