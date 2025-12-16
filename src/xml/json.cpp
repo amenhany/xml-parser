@@ -9,12 +9,13 @@ namespace xml_editor::xml {
         return string(level, '\t');
     }
 
-    static string format_value(const string& value ) {
+    static string format_value(const string& value) {
         string result = "";
         for (char c : value) {
             if (c == '\n') {
                 result += "\\n";
-            } else {
+            }
+            else {
                 result += c;
             }
         }
@@ -73,7 +74,7 @@ namespace xml_editor::xml {
         // Check if this node's tag matches previous node's tag (and prev is sibling, not parent)
         bool is_same_tag = (prev_node && prev_node->parent == node->parent && node->tag == prev_node->tag);
 
-        if (is_same_tag ) {
+        if (is_same_tag && !in_twin_array) {
             // This is a "twin" sibling - part of an array in JSON
             if (node->children.size() > 0) {
                 // Node has children
@@ -227,7 +228,7 @@ namespace xml_editor::xml {
         }
         else {
             json += "{\n";
-        }        
+        }
 
         // Traverse root's children
         for (int i = 0; i < root->children.size(); i++) {

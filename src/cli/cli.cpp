@@ -75,9 +75,8 @@ namespace xml_editor::cli {
             }
 
             std::string fixedFile = xml::get_fixed_XML();
-            // io::file_write(outputPath, fixedFile);
+            io::file_write(outputPath, fixedFile);
             std::cout << "File corrected at " << outputPath << '\n';
-            std::cout << fixedFile;
 
             return;
         }
@@ -100,7 +99,7 @@ namespace xml_editor::cli {
             break;
 
         case Command::Minify:
-            // outputText = xml::minify(inputText);
+            outputText = xml::minify(inputText);
             break;
 
         case Command::Compress:
@@ -115,7 +114,6 @@ namespace xml_editor::cli {
             std::cout << "Unknown command: " << argv[1] << std::endl;
         }
 
-        std::cout << outputText;
-        // io::file_write(outputPath, outputText);
+        io::file_write(outputPath, outputText);
     }
 }

@@ -2,11 +2,12 @@
 #include <iostream>
 #include <string>
 #include <cctype>
-using namespace std;
+
+using std::string;
+
 namespace xml_editor::xml {
 
-
-    string minifyXML(const string& xml) {
+    string minify(const string& xml) {
         string result;
         result.reserve(xml.size());
 
