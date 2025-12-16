@@ -123,6 +123,7 @@ namespace xml_editor::cli {
 
         default:
             std::cout << "Unknown command: " << argv[1] << std::endl;
+            return;
         }
 
         io::file_write(outputPath, outputText, tabWidth);
