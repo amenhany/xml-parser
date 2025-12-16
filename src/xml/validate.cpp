@@ -96,6 +96,23 @@ namespace xml_editor::xml {
                     }
                 }
                 else { //was an opening tag --> push in stack
+                    // Detect unclosed sibling
+                    if (!tags.empty() && tags.top() == tag) {
+                        all_errors.push_back({
+                            lineNumber,
+                            "Missing closing tag </" + tag + "> added before sibling"
+                            });
+
+                        // insert closing tag BEFORE this opening tag
+                        newLine.insert(pos, "</" + tag + ">\n" +
+                            std::string((tags.size() - 1) * 4, ' '));
+
+                        tags.pop(); // close previous sibling
+
+                        // update position after insertion
+                        pos += tag.size() + 3;
+                    }
+
                     tags.push(tag);
                 }
 
