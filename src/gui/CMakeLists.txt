@@ -19,12 +19,30 @@ add_compile_options(-std=c++17 -fexceptions)
 find_package(Qt6 REQUIRED COMPONENTS Widgets)
 
 # List of project source files
+# List of project source files
 set(PROJECT_SOURCES
     main.cpp
     mainwindow.cpp
     mainwindow.h
     mainwindow.ui
+
+    # XML Backend
+        ../xml/parse.cpp
+        ../xml/validate.cpp
+        ../xml/format.cpp
+        ../xml/json.cpp
+        ../xml/minify.cpp
+        ../xml/compress.cpp
+
+        # Tree Structure
+        ../tree/tree.cpp
+        ../tree/treenode.cpp
+
+        # IO (if needed, adding just in case)
+        ../io/file_reader.cpp
+        ../io/file_writer.cpp
 )
+
 
 # Create the Qt6 executable
 qt_add_executable(xml_gui
@@ -37,6 +55,12 @@ target_link_libraries(xml_gui PRIVATE Qt6::Widgets)
 
 # Windows-specific property for GUI application
 set_target_properties(xml_gui PROPERTIES WIN32_EXECUTABLE TRUE)
+
+target_include_directories(xml_gui PRIVATE 
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/../../include
+)
+
 
 # Optional: macOS bundle settings (only relevant if building on macOS)
 if(Qt6_VERSION VERSION_LESS "6.1.0")

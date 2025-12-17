@@ -9,15 +9,21 @@ class MainWindow;
 }
 QT_END_NAMESPACE
 
-class MainWindow : public QMainWindow
-{
-    Q_OBJECT
+class MainWindow : public QMainWindow {
+  Q_OBJECT
 
 public:
-    MainWindow(QWidget *parent = nullptr);
-    ~MainWindow();
+  explicit MainWindow(QWidget *parent = nullptr);
+  ~MainWindow();
+
+private slots:
+  void on_browseBtn_clicked();
+  void on_formatBtn_clicked();
+  void on_verifyBtn_clicked();
+  void on_jsonBtn_clicked();
 
 private:
-    Ui::MainWindow *ui;
+  Ui::MainWindow *ui;
 };
+
 #endif // MAINWINDOW_H
