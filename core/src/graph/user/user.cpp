@@ -10,6 +10,7 @@ namespace xml_editor {
     const std::vector<std::string>& Post::get_topics() const { return topics; }
     std::string Post::get_text() const { return text; }
 
+    User::User() = default;
     User::User(TreeNode* treeNode) {
         std::string tag;
         std::string value;

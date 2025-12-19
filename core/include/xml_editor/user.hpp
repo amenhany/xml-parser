@@ -29,6 +29,7 @@ namespace xml_editor {
 
     public:
         User(TreeNode* TreeNode);
+        User();
         ~User();
         std::string get_id() const;
         std::string get_name() const;
