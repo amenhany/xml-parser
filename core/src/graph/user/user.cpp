@@ -23,8 +23,10 @@ namespace xml_editor {
             else if (tag == "id")
                 this->id = value;
 
-            else if (tag == "follower")
-                this->followers.push_back(child->get_children()[0]->get_value());
+            else if (tag == "followers") {
+                for (TreeNode* follower : child->get_children())
+                    followers.push_back(follower->get_children()[0]->get_value());
+            }
 
             else if (tag == "posts") {
                 for (TreeNode* post : child->get_children()) {
