@@ -1,3 +1,0 @@
-E:\DSA\Qt\AppFiles\Tools\CMake_64\bin\cmake.exe -E rm -f CMakeFiles\xml_gui.dir/objects.a
-E:\DSA\Qt\AppFiles\Tools\mingw1310_64\bin\ar.exe qc CMakeFiles\xml_gui.dir/objects.a @CMakeFiles\xml_gui.dir\objects1.rsp
-E:\DSA\Qt\AppFiles\Tools\mingw1310_64\bin\c++.exe -mwindows -Wl,--whole-archive CMakeFiles\xml_gui.dir/objects.a -Wl,--no-whole-archive -o xml_gui.exe -Wl,--out-implib,libxml_gui.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\xml_gui.dir\linkLibs.rsp

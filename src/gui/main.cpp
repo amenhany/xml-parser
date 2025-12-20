@@ -1,3 +1,6 @@
+#include "../../../include/xml_editor/gui_runner.hpp"
+#include "../../../include/xml_editor/io.hpp"
+#include "../../../include/xml_editor/xml.hpp"
 #include <QApplication>
 #include <QWidget>
 #include <QPushButton>
@@ -10,11 +13,8 @@
 #include <QMessageBox>
 #include <QTextStream>
 #include <QFileInfo>
-// #include "xml_editor/xml.hpp"
-// #include "xml_editor/io.hpp"
-// #include "xml_editor/tree.hpp"
 
-int main(int argc, char *argv[])
+int run_gui(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
@@ -39,11 +39,11 @@ int main(int argc, char *argv[])
     fileLayout->addWidget(filePathEdit);
     mainLayout->addLayout(fileLayout);
 
-    // Operation buttons (placeholders)
+    // Operation buttons
     QPushButton *op1Button = new QPushButton("Validate");
     QPushButton *op2Button = new QPushButton("Format");
     QPushButton *op3Button = new QPushButton("To JSON");
-    QPushButton *op4Button = new QPushButton("Manify");
+    QPushButton *op4Button = new QPushButton("Minify");
     QPushButton *op5Button = new QPushButton("Compress");
     QPushButton *op6Button = new QPushButton("Decompress");
     buttonLayout->addWidget(op1Button);
@@ -67,7 +67,7 @@ int main(int argc, char *argv[])
 
     // Browse file
     QObject::connect(browseButton, &QPushButton::clicked, [&]() {
-        QString fileName = QFileDialog::getOpenFileName(&window, "Select File", "");
+        QString fileName = QFileDialog::getOpenFileName(&window, "Select File", "", "XML Files (*.xml);;All Files (*)");
         if (!fileName.isEmpty()) {
             filePathEdit->setText(fileName);
             QFile file(fileName);
@@ -89,15 +89,35 @@ int main(int argc, char *argv[])
             return "xml";
     };
 
-    // Operation buttons (placeholder functionality)
+    // Placeholder operations (can later call real backend functions)
     QObject::connect(op1Button, &QPushButton::clicked, [&]() {
         QString type = getInputType();
-        outputArea->setText("Operation 1 executed on " + type + " input.\n(This is just a placeholder.)");
+        outputArea->setText("Validate executed on " + type + " input.\n(This is just a placeholder.)");
     });
 
     QObject::connect(op2Button, &QPushButton::clicked, [&]() {
         QString type = getInputType();
-        outputArea->setText("Operation 2 executed on " + type + " input.\n(This is just a placeholder.)");
+        outputArea->setText("Format executed on " + type + " input.\n(This is just a placeholder.)");
+    });
+
+    QObject::connect(op3Button, &QPushButton::clicked, [&]() {
+        QString type = getInputType();
+        outputArea->setText("To JSON executed on " + type + " input.\n(This is just a placeholder.)");
+    });
+
+    QObject::connect(op4Button, &QPushButton::clicked, [&]() {
+        QString type = getInputType();
+        outputArea->setText("Minify executed on " + type + " input.\n(This is just a placeholder.)");
+    });
+
+    QObject::connect(op5Button, &QPushButton::clicked, [&]() {
+        QString type = getInputType();
+        outputArea->setText("Compress executed on " + type + " input.\n(This is just a placeholder.)");
+    });
+
+    QObject::connect(op6Button, &QPushButton::clicked, [&]() {
+        QString type = getInputType();
+        outputArea->setText("Decompress executed on " + type + " input.\n(This is just a placeholder.)");
     });
 
     // Save output

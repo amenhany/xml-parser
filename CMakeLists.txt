@@ -1,28 +1,40 @@
 cmake_minimum_required(VERSION 3.16)
+project(xml_parser LANGUAGES CXX)
 
-project(xml_editor LANGUAGES CXX)
-
-# C++ standard
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Output directories
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTORCC ON)
 
-# Add include directory using modern target_include_directories
-# (PUBLIC = visible to this target and anything linking to it)
-add_executable(xml_editor)
+find_package(Qt6 REQUIRED COMPONENTS Widgets)
 
-target_include_directories(xml_editor
-    PUBLIC
-        ${CMAKE_CURRENT_SOURCE_DIR}/include
+qt_add_executable(xml_gui
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/gui/main.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/gui/mainwindow.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/gui/mainwindow.h
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/gui/mainwindow.ui
 )
 
-# Collect all .cpp files recursively
-file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS
-    "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp"
+
+file(GLOB_RECURSE BACKEND_SOURCES
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/xml/*.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/tree/*.cpp
+    ${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.cpp
+)
+
+target_sources(xml_gui PRIVATE ${BACKEND_SOURCES})
+
+target_include_directories(xml_gui PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/src
+)
+
+target_link_libraries(xml_gui PRIVATE Qt6::Widgets)
+
+set_target_properties(xml_gui PROPERTIES
+    WIN32_EXECUTABLE TRUE
 )
 
 file(COPY resources DESTINATION ${CMAKE_BINARY_DIR})
-
-target_sources(xml_editor PRIVATE ${SOURCES})
