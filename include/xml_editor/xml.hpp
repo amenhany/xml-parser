@@ -22,10 +22,10 @@ namespace xml_editor::xml {
 
     std::string format(const Tree* tree);
     std::string to_json(const Tree* tree);
-    std::string minify(const Tree* tree);
+    std::string minify(const std::string& xmlText);
 
-    void compress();
-    void decompress();
+    std::string compress(const std::string& xml_string);
+    std::string decompress(const std::string& comp_string);
 }
 
 #endif
