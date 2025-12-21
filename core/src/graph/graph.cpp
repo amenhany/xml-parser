@@ -49,6 +49,9 @@ namespace xml_editor {
             result.push_back(id_to_user[id]);
         }
         return result;
-    };
+    }
+
+    std::unordered_map<std::string, std::vector<std::string>> Graph::get_graph() { return graph; }
+    std::unordered_map<std::string, User> Graph::get_id_to_user() { return id_to_user; }
 }
 
