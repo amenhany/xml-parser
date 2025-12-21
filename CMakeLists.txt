@@ -1,40 +1,80 @@
 cmake_minimum_required(VERSION 3.16)
-project(xml_parser LANGUAGES CXX)
+project(xml_parser VERSION 0.1 LANGUAGES CXX)
 
+# ---------------------------
+# C++ standard
+# ---------------------------
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+# ---------------------------
+# Enable Qt features
+# ---------------------------
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
+# ---------------------------
+# Find Qt6 Widgets
+# ---------------------------
 find_package(Qt6 REQUIRED COMPONENTS Widgets)
 
-qt_add_executable(xml_gui
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/gui/main.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/gui/mainwindow.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/gui/mainwindow.h
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/gui/mainwindow.ui
+# ---------------------------
+# GUI sources
+# ---------------------------
+set(GUI_SOURCES
+    src/gui/main.cpp
+    src/gui/mainwindow.cpp
 )
 
+set(GUI_HEADERS
+    src/gui/mainwindow.h
+)
 
+set(UI_FILES
+    src/gui/mainwindow.ui
+)
+
+# ---------------------------
+# Backend sources
+# ---------------------------
 file(GLOB_RECURSE BACKEND_SOURCES
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/xml/*.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/tree/*.cpp
-    ${CMAKE_CURRENT_SOURCE_DIR}/src/io/*.cpp
+    src/xml/*.cpp
+    src/tree/*.cpp
+    src/io/*.cpp
+    src/cli/*.cpp
 )
 
-target_sources(xml_gui PRIVATE ${BACKEND_SOURCES})
+# ---------------------------
+# Define executable
+# ---------------------------
+# We use add_executable (not qt_add_executable) to avoid WinMain issues
+add_executable(xml_editor
+    ${GUI_SOURCES}
+    ${GUI_HEADERS}
+    ${UI_FILES}
+    ${BACKEND_SOURCES}
+)
 
-target_include_directories(xml_gui PRIVATE
+# ---------------------------
+# Include directories
+# ---------------------------
+target_include_directories(xml_editor PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
 
-target_link_libraries(xml_gui PRIVATE Qt6::Widgets)
+# ---------------------------
+# Link Qt6 Widgets
+# ---------------------------
+target_link_libraries(xml_editor PRIVATE Qt6::Widgets)
 
-set_target_properties(xml_gui PROPERTIES
-    WIN32_EXECUTABLE TRUE
-)
+# ---------------------------
+# Force console application (no WinMain)
+# ---------------------------
+set_target_properties(xml_editor PROPERTIES WIN32_EXECUTABLE FALSE)
 
-file(COPY resources DESTINATION ${CMAKE_BINARY_DIR})
+# ---------------------------
+# Copy resources folder to build
+# ---------------------------
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/resources DESTINATION ${CMAKE_BINARY_DIR})

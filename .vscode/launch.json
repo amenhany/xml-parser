@@ -5,12 +5,13 @@
             "name": "Run xml_editor",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/bin/xml_editor",
+            "program": "${workspaceFolder}/build/xml_editor.exe",
             "cwd": "${workspaceFolder}",
             "stopAtEntry": false,
             "externalConsole": true,
-            "MIMode": "lldb",
-            "preLaunchTask": "CMake Build" // Build before running (Optional)
+            "MIMode": "gdb",
+            "miDebuggerPath": "E:/DSA/Qt/AppFiles/Tools/mingw1310_64/bin/gdb.exe",
+            "preLaunchTask": "CMake Build"
         }
     ]
 }
