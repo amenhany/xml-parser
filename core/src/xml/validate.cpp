@@ -74,7 +74,7 @@ namespace xml_editor::xml {
                             while (!tags.empty() && tags.top() != closing) {
                                 all_errors.push_back({
                                     lineNumber,
-                                    "Missing closing tag </" + tags.top() + "> added"
+                                    "Missing closing tag </" + tags.top() + ">"
                                     });
                                 fixed_lines.push_back(std::string((tags.size() - 1) * 4, ' ') + "</" + tags.top() + ">");
                                 tags.pop();
@@ -100,7 +100,7 @@ namespace xml_editor::xml {
                     if (!tags.empty() && tags.top() == tag) {
                         all_errors.push_back({
                             lineNumber,
-                            "Missing closing tag </" + tag + "> added before sibling"
+                            "Missing closing tag </" + tag + "> before sibling"
                             });
 
                         // insert closing tag BEFORE this opening tag
@@ -118,6 +118,28 @@ namespace xml_editor::xml {
 
                 pos = endPos + 1;
             }
+
+            // AUTO-CLOSE TAG IF LINE ENDS WITH TEXT
+            if (!tags.empty()) {
+                size_t lastOpen = newLine.rfind('>');
+                size_t lastClose = newLine.rfind("</");
+
+                // There is text after an opening tag and no closing tag
+                if (lastOpen != std::string::npos &&
+                    (lastClose == std::string::npos || lastClose < lastOpen) &&
+                    lastOpen + 1 < newLine.size())
+                {
+                    std::string openTag = tags.top();
+                    newLine += "</" + openTag + ">";
+                    tags.pop();
+
+                    all_errors.push_back({
+                        lineNumber,
+                        "Missing closing tag </" + openTag + "> added"
+                        });
+                }
+            }
+
 
             fixed_lines.push_back(newLine);
         }

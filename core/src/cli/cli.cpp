@@ -3,6 +3,7 @@
 #include "xml_editor/io.hpp"
 
 #include <iostream>
+#include <string.h>
 
 namespace {
 
@@ -10,7 +11,7 @@ namespace {
 
     int find_flag(const char* flag, int argc, char** argv) {
         for (int i = 1; i + 1 < argc; ++i) {
-            if (std::strcmp(argv[i], flag) == 0) return i;
+            if (strcmp(argv[i], flag) == 0) return i;
         }
         return -1;
     }
