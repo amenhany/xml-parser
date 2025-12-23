@@ -3,9 +3,10 @@
 namespace xml_editor::sna {
 
     const User* most_active(const Graph& xmlGraph) {
-        std::unordered_map<std::string, std::vector<std::string>> graph = xmlGraph.get_graph();
+        const auto& graph = xmlGraph.get_graph();
         int max = 0;
         std::string max_id;
+
         for (const auto& user : graph) {
             if (user.second.size() > max) {
                 max = user.second.size();

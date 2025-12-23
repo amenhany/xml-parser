@@ -4,10 +4,11 @@
 namespace xml_editor::sna {
 
     std::vector<const User*> get_suggestions(const Graph& xmlGraph, const std::string& id) {
-        std::unordered_map<std::string, User> id_to_user = xmlGraph.get_id_to_user();
+        const auto& id_to_user = xmlGraph.get_id_to_user();
         std::vector<const User*> result;
+
         const User& user = id_to_user.at(id);
-        std::vector<std::string> followers = user.get_followers();
+        const std::vector<std::string>& followers = user.get_followers();
         std::unordered_set<std::string> suggestions;
 
         for (const std::string& follower_id : followers) {
@@ -16,6 +17,7 @@ namespace xml_editor::sna {
                     suggestions.insert(suggested_id);
             }
         }
+
         for (const std::string& follower_id : followers)
             suggestions.erase(follower_id);
         for (const std::string& s_id : suggestions)
