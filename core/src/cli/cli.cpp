@@ -5,6 +5,7 @@
 #include "xml_editor/graph.hpp"
 
 #include <iostream>
+#include <cstring>
 #include <optional>
 #include <sstream>
 
@@ -126,13 +127,16 @@ namespace xml_editor::cli {
 
         if (needs_graph(command)) {
             Graph graph(xmlTree);
+            const User* user;
 
             switch (command) {
             case Command::MostInfluencer:
-                std::cout << sna::most_influencer(graph) << '\n';
+                user = sna::most_influencer(graph);
+                std::cout << "Most Influencer User:\n" << *user << '\n';
                 break;
             case Command::MostActive:
-                std::cout << sna::most_active(graph) << '\n';
+                user = sna::most_active(graph);
+                std::cout << "Most Active User:\n" << *user << '\n';
                 break;
             case Command::Mutual: {
                 int idx = find_flag("-ids", argc, argv);
@@ -145,7 +149,17 @@ namespace xml_editor::cli {
 
                 ids = argv[idx + 1];
                 std::vector<std::string> separatedIds = split_string(ids, ',');
-                std::cout << sna::get_mutual(graph, separatedIds) << '\n';
+                const std::vector<const User*>& mutuals = sna::get_mutual(graph, separatedIds);
+
+                if (mutuals.size() == 0) {
+                    std::cout << "No mutuals between users " << ids << '\n';
+                    break;
+                }
+
+                std::cout << "Mutuals:\n\n";
+                for (const auto& mutual : mutuals) {
+                    std::cout << *mutual << '\n';
+                }
                 break;
             }
             case Command::Suggest: {
@@ -158,11 +172,43 @@ namespace xml_editor::cli {
                 }
 
                 id = argv[idx + 1];
-                std::cout << sna::get_suggestions(graph, id) << '\n';
+                const std::vector<const User*>& suggestions = sna::get_suggestions(graph, id);
+
+                if (suggestions.size() == 0) {
+                    std::cout << "No suggestions for user " << id << '\n';
+                    break;
+                }
+
+                std::cout << "Suggestions:\n\n";
+                for (const auto& suggestion : suggestions) {
+                    std::cout << *suggestion << '\n';
+                }
                 break;
             }
-            case Command::Search:
+            case Command::Search: {
+                int idx = std::max(find_flag("-w", argc, argv), find_flag("-t", argc, argv));
+                bool isTopic = std::strcmp(argv[idx], "-t") == 0;
+                std::string keyword;
+
+                if (idx <= -1) {
+                    std::cout << "No keyword given\n";
+                    return;
+                }
+
+                keyword = argv[idx + 1];
+                const auto& results = isTopic ? sna::search_by_topic(graph, keyword) : sna::search_by_word(graph, keyword);
+
+                if (results.size() == 0) {
+                    std::cout << "No results for \"" << keyword << "\"\n";
+                    break;
+                }
+
+                std::cout << "Results for \"" << keyword << "\":\n\n";
+                for (int i = 0; i < results.size(); i++) {
+                    std::cout << "Post " << i + 1 << ":\n" << *results[i] << "\n\n";
+                }
                 break;
+            }
             default:
                 break;
             }
