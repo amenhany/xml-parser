@@ -2,7 +2,7 @@
 
 namespace xml_editor::sna {
 
-    std::vector<Post> search_by_topic(Graph graph, const std::string& topic) {
+    std::vector<Post> search_by_topic(const Graph& graph, const std::string& topic) {
         std::vector<Post> MatchingPosts;
 
         auto id_to_user = graph.get_id_to_user();
