@@ -34,21 +34,21 @@ namespace xml_editor {
         graph[v1].push_back(v2);
     }
 
-    vector<User> Graph::get_vertices() const {
-        vector<User> vertices;
+    vector<const User*> Graph::get_vertices() const {
+        vector<const User*> vertices;
         for (const auto& v : id_to_user) {
-            vertices.push_back(v.second);
+            vertices.push_back(&v.second);
         }
         return vertices;
     }
 
-    vector<User> Graph::get_edges(const string& vertex_id) const {
-        vector<User> result;
+    vector<const User*> Graph::get_edges(const string& vertex_id) const {
+        vector<const User*> result;
 
         if (graph.find(vertex_id) == graph.end())
             return {};
         for (const string& id : graph.at(vertex_id)) {
-            result.push_back(id_to_user.at(id));
+            result.push_back(&id_to_user.at(id));
         }
         return result;
     }
