@@ -5,12 +5,12 @@
 
 namespace xml_editor::sna {
 
-    std::string most_active(Graph graph);
-    std::string most_influencer(Graph graph);
-    std::string get_mutual(const std::vector<std::string>& ids);
-    std::string get_suggestions(const std::string& id);
-    std::string search_by_word(const std::string& word);
-    std::string search_by_topic(const std::string& topic);
+    const User* most_active(const Graph& xmlGraph);
+    const User* most_influencer(const Graph& xmlGraph);
+    std::vector<const User*> get_mutual(const Graph& xmlGraph, const std::vector<std::string>& ids);
+    std::vector<const User*> get_suggestions(const Graph& xmlGraph, const std::string& id);
+    std::string search_by_word(const Graph& xmlGraph, const std::string& word);
+    std::string search_by_topic(const Graph& xmlGraph, const std::string& topic);
 
 }
 

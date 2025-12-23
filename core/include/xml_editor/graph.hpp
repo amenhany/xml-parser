@@ -1,6 +1,7 @@
 #ifndef XML_EDITOR_GRAPH_HPP
 #define XML_EDITOR_GRAPH_HPP
 
+#include "tree.hpp"
 #include "user.hpp"
 #include <string>
 #include <vector>
@@ -19,10 +20,11 @@ namespace xml_editor {
 
         void add_vertex(const User& vertex);
         void add_edge(const std::string& v1, const std::string& v2);
-        std::vector<User> get_vertices();
-        std::vector<User> get_edges(const std::string& vertex_id);
-        std::unordered_map<std::string, std::vector<std::string>> get_graph();
-        std::unordered_map<std::string, User> get_id_to_user();
+
+        std::vector<User> get_vertices() const;
+        std::vector<User> get_edges(const std::string& vertex_id) const;
+        const std::unordered_map<std::string, std::vector<std::string>>& get_graph() const;
+        const std::unordered_map<std::string, User>& get_id_to_user() const;
     };
 
 }

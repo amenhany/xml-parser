@@ -1,8 +1,5 @@
 #include "xml_editor/user.hpp"
 
-#include <string>
-#include <vector>
-
 namespace xml_editor {
     Post::Post(std::vector<std::string> topics, std::string text) : topics(topics), text(text) {}
     Post::~Post() = default;

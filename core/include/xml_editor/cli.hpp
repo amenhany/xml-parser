@@ -9,6 +9,13 @@ namespace xml_editor::cli {
         Minify,
         Compress,
         Decompress,
+
+        MostInfluencer,
+        MostActive,
+        Mutual,
+        Suggest,
+        Search,
+
         Unknown
     };
 

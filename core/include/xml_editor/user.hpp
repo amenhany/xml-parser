@@ -4,7 +4,6 @@
 #include "tree.hpp"
 #include <string>
 #include <vector>
-#include <functional>
 
 namespace xml_editor {
     class Post {
