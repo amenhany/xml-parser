@@ -3,11 +3,13 @@
 #include "xml_editor/io.hpp"
 #include "xml_editor/sna.hpp"
 #include "xml_editor/graph.hpp"
+#include "xml_editor/visualization.hpp"
+#include "xml_editor/util.hpp"
 
 #include <iostream>
+#include <stdexcept>
 #include <cstring>
 #include <optional>
-#include <sstream>
 
 namespace {
 
@@ -51,6 +53,8 @@ namespace {
         if (cmd == "mutual") return Command::Mutual;
         if (cmd == "suggest") return Command::Suggest;
         if (cmd == "search") return Command::Search;
+        if (cmd == "draw") return Command::Draw;
+
         return Command::Unknown;
     }
 
@@ -59,19 +63,8 @@ namespace {
             command == Command::MostActive ||
             command == Command::Mutual ||
             command == Command::Suggest ||
-            command == Command::Search);
-    }
-
-    std::vector<std::string> split_string(const std::string& s, char delimiter) {
-        std::vector<std::string> result;
-        std::stringstream ss(s);
-        std::string item;
-
-        while (std::getline(ss, item, delimiter)) {
-            result.push_back(item);
-        }
-
-        return result;
+            command == Command::Search ||
+            command == Command::Draw);
     }
 }
 
@@ -148,7 +141,7 @@ namespace xml_editor::cli {
                 }
 
                 ids = argv[idx + 1];
-                std::vector<std::string> separatedIds = split_string(ids, ',');
+                std::vector<std::string> separatedIds = util::split_string(ids, ',');
                 const std::vector<const User*>& mutuals = sna::get_mutual(graph, separatedIds);
 
                 if (mutuals.size() == 0) {
@@ -206,6 +199,20 @@ namespace xml_editor::cli {
                 std::cout << "Results for \"" << keyword << "\":\n\n";
                 for (int i = 0; i < results.size(); i++) {
                     std::cout << "Post " << i + 1 << ":\n" << *results[i] << "\n\n";
+                }
+                break;
+            }
+            case Command::Draw: {
+                if (outputPath.empty()) {
+                    std::cout << "Output file not specified\n";
+                    return;
+                }
+
+                try {
+                    draw::run_graphviz(graph.to_dot(), outputPath);
+                }
+                catch (std::runtime_error& e) {
+                    std::cout << e.what() << '\n';
                 }
                 break;
             }

@@ -25,6 +25,8 @@ namespace xml_editor {
         std::vector<const User*> get_edges(const std::string& vertex_id) const;
         const std::unordered_map<std::string, std::vector<std::string>>& get_graph() const;
         const std::unordered_map<std::string, User>& get_id_to_user() const;
+
+        std::string to_dot() const;
     };
 
 }

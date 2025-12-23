@@ -55,5 +55,25 @@ namespace xml_editor {
 
     const std::unordered_map<string, vector<string>>& Graph::get_graph() const { return graph; }
     const std::unordered_map<string, User>& Graph::get_id_to_user() const { return id_to_user; }
+
+    std::string Graph::to_dot() const {
+        std::string result = "digraph { ";
+        std::vector<const User*> users = get_vertices();
+
+        // nodes (for isolated users)
+        for (const User* user : users) {
+            result += "\"" + user->get_id() + "\"; ";
+        }
+
+        // edges
+        for (const User* user : users) {
+            for (const auto& follower : user->get_followers()) {
+                result += "\"" + user->get_id() + "\" -> \"" + follower + "\"; ";
+            }
+        }
+
+        result += "}";
+        return result;
+    }
 }
 

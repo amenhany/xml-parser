@@ -15,6 +15,7 @@ namespace xml_editor::cli {
         Mutual,
         Suggest,
         Search,
+        Draw,
 
         Unknown
     };
