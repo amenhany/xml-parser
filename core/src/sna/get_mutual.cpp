@@ -5,20 +5,19 @@
 
 namespace xml_editor::sna {
 
-    std::string get_mutual(const Graph& xmlGraph, const std::vector<std::string>& ids) {
+    std::vector<const User*> get_mutual(const Graph& xmlGraph, const std::vector<std::string>& ids) {
+        std::unordered_map<std::string, User> id_to_user = xmlGraph.get_id_to_user();
+        std::vector<const User*> mutual_users;
 
-        const auto& id_to_user = xmlGraph.get_id_to_user();
-        std::string result;
         std::unordered_set<std::string> mutual(
             id_to_user.at(ids[0]).get_followers().begin(),
-            id_to_user.at(ids[0]).get_followers().end()
-        );
+            id_to_user.at(ids[0]).get_followers().end());
 
-        for (int i = 1; i < ids.size(); i++) {
+        for (size_t i = 1; i < ids.size(); i++) {
             std::unordered_set<std::string> current(
                 id_to_user.at(ids[i]).get_followers().begin(),
-                id_to_user.at(ids[i]).get_followers().end()
-            );
+                id_to_user.at(ids[i]).get_followers().end());
+
             for (auto it = mutual.begin(); it != mutual.end(); ) {
                 if (!current.count(*it))
                     it = mutual.erase(it);
@@ -26,12 +25,9 @@ namespace xml_editor::sna {
                     ++it;
             }
         }
-        int i = 1;
-        for (const std::string& mutual_id : mutual) {
-            const User& user = id_to_user.at(mutual_id);
-            result += "User " + std::to_string(i) + ":\n" + "Name: " + user.get_name() + "\n" + "ID: " + user.get_id() + "\n\n";
-            i++;
+        for (const auto& id : mutual) {
+            mutual_users.push_back(&id_to_user.at(id));
         }
-        return result;
+        return mutual_users;
     }
 }
