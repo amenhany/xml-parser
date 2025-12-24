@@ -1,0 +1,86 @@
+<users>
+    <user>
+        <id>1</id>
+        <name>Alice</name>
+        <posts>
+            <post>
+                <text>Hello world! Learning XML is fun.</text>
+                <topics>
+                    <topic>xml</topic>
+                    <topic>learning</topic>
+                </topics>
+            </post>
+            <post>
+                <text>Graphs are powerful for social networks.</text>
+                <topics>
+                    <topic>graphs</topic>
+                    <topic>data-structures</topic>
+                </topics>
+            </post>
+        </posts>
+        <followers>
+            <follower><id>2</id></follower>
+            <follower><id>3</id></follower>
+        </followers>
+    </user>
+
+    <user>
+        <id>2</id>
+        <name>Bob</name>
+        <posts>
+            <post>
+                <text>I love programming in C++.</text>
+                <topics>
+                    <topic>cpp</topic>
+                    <topic>programming</topic>
+                </topics>
+            </post>
+        </posts>
+        <followers>
+            <follower><id>1</id></follower>
+            <follower><id>3</id></follower>
+            <follower><id>4</id></follower>
+        </followers>
+    </user>
+
+    <user>
+        <id>3</id>
+        <name>Charlie</name>
+        <posts>
+            <post>
+                <text>JSON and XML both have their uses.</text>
+                <topics>
+                    <topic>json</topic>
+                    <topic>xml</topic>
+                </topics>
+            </post>
+            <post>
+                <text>Searching posts is an interesting problem.</text>
+                <topics>
+                    <topic>search</topic>
+                </topics>
+            </post>
+        </posts>
+        <followers>
+            <follower><id>1</id></follower>
+        </followers>
+    </user>
+
+    <user>
+        <id>4</id>
+        <name>Diana</name>
+        <posts>
+            <post>
+                <text>Compression algorithms save storage space.</text>
+                <topics>
+                    <topic>compression</topic>
+                    <topic>algorithms</topic>
+                </topics>
+            </post>
+        </posts>
+        <followers>
+            <follower><id>2</id></follower>
+            <follower><id>3</id></follower>
+        </followers>
+    </user>
+</users>

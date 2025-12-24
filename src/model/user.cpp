@@ -1,14 +1,12 @@
 #include "xml_editor/user.hpp"
 
-#include <string>
-#include <vector>
-
 namespace xml_editor {
-    Post::Post(std::vector<std::string> topics, std::string text) : topics(topics), text(text) {}
+    Post::Post(std::vector<std::string> topics, std::string text, std::string author_id) : topics(topics), text(text), author_id(author_id) {}
     Post::~Post() = default;
 
     const std::vector<std::string>& Post::get_topics() const { return topics; }
-    std::string Post::get_text() const { return text; }
+    const std::string& Post::get_text() const { return text; }
+    const std::string& Post::get_author_id() const { return author_id; }
 
     User::User() = default;
     User::User(TreeNode* treeNode) {
@@ -44,11 +42,14 @@ namespace xml_editor {
                                 topics.push_back(topic->get_value());
                         }
                     }
-                    Post user_post(topics, text);
+                    Post user_post(topics, text, id);
                     this->posts.push_back(user_post);
                 }
             }
         }
+
+        for (auto& post : this->posts)
+            if (post.author_id.empty()) post.author_id = id;
     }
     User::~User() = default;
 
@@ -56,4 +57,20 @@ namespace xml_editor {
     std::string User::get_name() const { return name; }
     const std::vector<std::string>& User::get_followers() const { return followers; }
     const std::vector<Post>& User::get_posts() const { return posts; }
+
+
+    std::ostream& operator<<(std::ostream& COUT, const xml_editor::User& U) {
+        COUT << "Name: " << U.get_name() << "\nID: " << U.get_id();
+        return COUT;
+    }
+
+    std::ostream& operator<<(std::ostream& COUT, const xml_editor::Post& P) {
+        COUT << P.get_text() << "\nAuthor ID: " << P.get_author_id() << "\nTopics: ";
+        const auto& topics = P.get_topics();
+        for (int i = 0; i < topics.size() - 1; i++) {
+            COUT << topics[i] << ", ";
+        }
+        COUT << topics[topics.size() - 1];
+        return COUT;
+    }
 }

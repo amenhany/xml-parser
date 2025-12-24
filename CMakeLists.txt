@@ -40,11 +40,12 @@ set(UI_FILES
 # ---------------------------
 file(GLOB_RECURSE BACKEND_SOURCES
     src/xml/*.cpp
-    src/tree/*.cpp
     src/io/*.cpp
     src/cli/*.cpp
-    src/graph/*.cpp
-    src/graph/user/*.cpp
+    src/sna/*.cpp
+    src/visualization/*.cpp
+    src/util/*.cpp
+    src/model/*.cpp
 )
 
 # ---------------------------

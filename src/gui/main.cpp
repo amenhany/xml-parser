@@ -2,6 +2,12 @@
 #include "xml_editor/io.hpp"
 #include "xml_editor/xml.hpp"
 #include "xml_editor/cli.hpp"
+#include "xml_editor/graph.hpp"
+#include "xml_editor/user.hpp"
+#include "xml_editor/tree.hpp"
+#include "xml_editor/sna.hpp"
+#include "xml_editor/visualization.hpp"
+#include "xml_editor/util.hpp"
 #include <QApplication>
 #include <QWidget>
 #include <QPushButton>
@@ -17,6 +23,7 @@
 #include <iostream>
 #include <sstream>
 #include <streambuf>
+#include <QInputDialog>
 
 int main(int argc, char* argv[]) {
     if (argc == 1 || std::strcmp(argv[1], "--gui") == 0) {
@@ -36,32 +43,34 @@ int run_gui(int argc, char* argv[])
     QApplication app(argc, argv);
     QWidget window;
     window.setWindowTitle("XML Editor");
-    window.resize(800, 600);
+    window.resize(900, 700);
 
     // Layouts
-    QVBoxLayout *mainLayout = new QVBoxLayout(&window);
-    QHBoxLayout *fileLayout = new QHBoxLayout();
-    QHBoxLayout *buttonLayout = new QHBoxLayout();
+    QVBoxLayout* mainLayout = new QVBoxLayout(&window);
+    QHBoxLayout* fileLayout = new QHBoxLayout();
+    QHBoxLayout* buttonLayout = new QHBoxLayout();
+    QHBoxLayout* graphLayout = new QHBoxLayout();
 
     // Input area
-    QTextEdit *inputArea = new QTextEdit();
+    QTextEdit* inputArea = new QTextEdit();
     inputArea->setPlaceholderText("Enter XML content here or select a file...");
     mainLayout->addWidget(inputArea);
 
     // Browse file
-    QPushButton *browseButton = new QPushButton("Browse File");
-    QLineEdit *filePathEdit = new QLineEdit();
+    QPushButton* browseButton = new QPushButton("Browse File");
+    QLineEdit* filePathEdit = new QLineEdit();
     fileLayout->addWidget(browseButton);
     fileLayout->addWidget(filePathEdit);
     mainLayout->addLayout(fileLayout);
 
     // Operation buttons
-    QPushButton *validateButton = new QPushButton("Validate");
-    QPushButton *formatButton = new QPushButton("Format");
-    QPushButton *jsonButton = new QPushButton("To JSON");
-    QPushButton *minifyButton = new QPushButton("Minify");
-    QPushButton *compressButton = new QPushButton("Compress");
-    QPushButton *decompressButton = new QPushButton("Decompress");
+    QPushButton* validateButton = new QPushButton("Validate");
+    QPushButton* formatButton = new QPushButton("Format");
+    QPushButton* jsonButton = new QPushButton("To JSON");
+    QPushButton* minifyButton = new QPushButton("Minify");
+    QPushButton* compressButton = new QPushButton("Compress");
+    QPushButton* decompressButton = new QPushButton("Decompress");
+
     buttonLayout->addWidget(validateButton);
     buttonLayout->addWidget(formatButton);
     buttonLayout->addWidget(jsonButton);
@@ -70,29 +79,34 @@ int run_gui(int argc, char* argv[])
     buttonLayout->addWidget(decompressButton);
     mainLayout->addLayout(buttonLayout);
 
+    // Graph/Network buttons
+    QPushButton* mostActiveButton = new QPushButton("Most Active");
+    QPushButton* mostInfluencerButton = new QPushButton("Most Influencer");
+    QPushButton* mutualButton = new QPushButton("Mutual Followers");
+    QPushButton* suggestButton = new QPushButton("Suggest Users");
+    QPushButton* searchWordButton = new QPushButton("Search Word");
+    QPushButton* searchTopicButton = new QPushButton("Search Topic");
+    QPushButton* drawGraphButton = new QPushButton("Draw Graph");
+
+    graphLayout->addWidget(mostActiveButton);
+    graphLayout->addWidget(mostInfluencerButton);
+    graphLayout->addWidget(mutualButton);
+    graphLayout->addWidget(suggestButton);
+    graphLayout->addWidget(searchWordButton);
+    graphLayout->addWidget(searchTopicButton);
+    graphLayout->addWidget(drawGraphButton);
+    mainLayout->addLayout(graphLayout);
+
     // Output area
-    QTextEdit *outputArea = new QTextEdit();
+    QTextEdit* outputArea = new QTextEdit();
     outputArea->setReadOnly(true);
     mainLayout->addWidget(outputArea);
 
     // Save output
-    QPushButton *saveButton = new QPushButton("Save Output");
+    QPushButton* saveButton = new QPushButton("Save Output");
     mainLayout->addWidget(saveButton);
 
-    // --- Connections ---
-
-    QObject::connect(browseButton, &QPushButton::clicked, [&]() {
-        QString fileName = QFileDialog::getOpenFileName(&window, "Select File", "", "XML Files (*.xml);;All Files (*)");
-        if (!fileName.isEmpty()) {
-            filePathEdit->setText(fileName);
-            QFile file(fileName);
-            if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-                QTextStream in(&file);
-                inputArea->setText(in.readAll());
-                file.close();
-            }
-        }
-    });
+    // --- Helpers
 
     auto getInputText = [&]() -> QString {
         QString text = inputArea->toPlainText().trimmed();
@@ -109,22 +123,29 @@ int run_gui(int argc, char* argv[])
         return text;
     };
 
+    auto buildGraph = [&]() -> std::unique_ptr<xml_editor::Graph> {
+        QString xmlText = getInputText();
+        if (xmlText.isEmpty()) return nullptr;
+
+        xml_editor::Tree* tree = xml_editor::xml::parse(xmlText.toStdString());
+        if (!tree) return nullptr;
+
+        return std::make_unique<xml_editor::Graph>(tree);
+    };
+
+    // --- Connections for CLI-like XML operations ---
+
     QObject::connect(validateButton, &QPushButton::clicked, [&]() {
         QString xmlText = getInputText();
-        if (xmlText.isEmpty()) {
-            outputArea->setText("Please enter XML content or select a file.");
-            return;
-        }
+        if (xmlText.isEmpty()) { outputArea->setText("No XML content."); return; }
 
         bool valid = xml_editor::xml::is_valid(xmlText.toStdString());
-        if (valid) {
-            outputArea->setText("XML is valid!");
-        } else {
+        if (valid) outputArea->setText("XML is valid!");
+        else {
             std::ostringstream oss;
-            oss << "XML has errors (" << xml_editor::xml::get_error_count() << "):\n";
-            for (auto &err : xml_editor::xml::get_errors()) {
+            oss << "XML errors (" << xml_editor::xml::get_error_count() << "):\n";
+            for (auto &err : xml_editor::xml::get_errors())
                 oss << "Line " << err.line << ": " << err.message << "\n";
-            }
             oss << "\nFixed XML:\n" << xml_editor::xml::get_fixed_XML();
             outputArea->setText(QString::fromStdString(oss.str()));
         }
@@ -132,10 +153,7 @@ int run_gui(int argc, char* argv[])
 
     QObject::connect(formatButton, &QPushButton::clicked, [&]() {
         QString xmlText = getInputText();
-        if (xmlText.isEmpty()) {
-            outputArea->setText("Please enter XML content or select a file.");
-            return;
-        }
+        if (xmlText.isEmpty()) { outputArea->setText("No XML content."); return; }
         auto tree = xml_editor::xml::parse(xmlText.toStdString());
         QString formatted = QString::fromStdString(xml_editor::xml::format(tree));
         outputArea->setText(formatted);
@@ -143,10 +161,7 @@ int run_gui(int argc, char* argv[])
 
     QObject::connect(jsonButton, &QPushButton::clicked, [&]() {
         QString xmlText = getInputText();
-        if (xmlText.isEmpty()) {
-            outputArea->setText("Please enter XML content or select a file.");
-            return;
-        }
+        if (xmlText.isEmpty()) { outputArea->setText("No XML content."); return; }
         auto tree = xml_editor::xml::parse(xmlText.toStdString());
         QString jsonStr = QString::fromStdString(xml_editor::xml::to_json(tree));
         outputArea->setText(jsonStr);
@@ -154,32 +169,20 @@ int run_gui(int argc, char* argv[])
 
     QObject::connect(minifyButton, &QPushButton::clicked, [&]() {
         QString xmlText = getInputText();
-        if (xmlText.isEmpty()) {
-            outputArea->setText("Please enter XML content or select a file.");
-            return;
-        }
-        QString minified = QString::fromStdString(xml_editor::xml::minify(xmlText.toStdString()));
-        outputArea->setText(minified);
+        if (xmlText.isEmpty()) { outputArea->setText("No XML content."); return; }
+        outputArea->setText(QString::fromStdString(xml_editor::xml::minify(xmlText.toStdString())));
     });
 
     QObject::connect(compressButton, &QPushButton::clicked, [&]() {
         QString xmlText = getInputText();
-        if (xmlText.isEmpty()) {
-            outputArea->setText("Please enter XML content or select a file.");
-            return;
-        }
-        QString compressed = QString::fromStdString(xml_editor::xml::compress(xmlText.toStdString()));
-        outputArea->setText(compressed);
+        if (xmlText.isEmpty()) { outputArea->setText("No XML content."); return; }
+        outputArea->setText(QString::fromStdString(xml_editor::xml::compress(xmlText.toStdString())));
     });
 
     QObject::connect(decompressButton, &QPushButton::clicked, [&]() {
         QString xmlText = getInputText();
-        if (xmlText.isEmpty()) {
-            outputArea->setText("Please enter XML content or select a file.");
-            return;
-        }
-        QString decompressed = QString::fromStdString(xml_editor::xml::decompress(xmlText.toStdString()));
-        outputArea->setText(decompressed);
+        if (xmlText.isEmpty()) { outputArea->setText("No XML content."); return; }
+        outputArea->setText(QString::fromStdString(xml_editor::xml::decompress(xmlText.toStdString())));
     });
 
     QObject::connect(saveButton, &QPushButton::clicked, [&]() {
@@ -194,6 +197,153 @@ int run_gui(int argc, char* argv[])
             }
         }
     });
+
+    // --- Graph / Network buttons using ready-made sna functions ---
+
+    QObject::connect(mostActiveButton, &QPushButton::clicked, [&]() {
+        auto graphPtr = buildGraph();
+        if (!graphPtr) { outputArea->setText("Invalid XML input."); return; }
+
+        auto user = xml_editor::sna::most_active(*graphPtr);
+        if (!user) { outputArea->setText("No users found."); return; }
+
+        outputArea->setText(
+            QString("Most Active User:\nName: %1\nID: %2")
+            .arg(QString::fromStdString(user->get_name()))
+            .arg(QString::fromStdString(user->get_id()))
+        );
+    });
+
+    QObject::connect(mostInfluencerButton, &QPushButton::clicked, [&]() {
+        auto graphPtr = buildGraph();
+        if (!graphPtr) { outputArea->setText("Invalid XML input."); return; }
+
+        auto user = xml_editor::sna::most_influencer(*graphPtr);
+        if (!user) { outputArea->setText("No users found."); return; }
+
+        outputArea->setText(
+            QString("Most Influencer User:\nName: %1\nID: %2")
+            .arg(QString::fromStdString(user->get_name()))
+            .arg(QString::fromStdString(user->get_id()))
+        );
+    });
+
+    QObject::connect(mutualButton, &QPushButton::clicked, [&]() {
+        bool ok;
+        QString idsText = QInputDialog::getText(&window, "Mutual Followers", "Enter IDs (comma-separated):", QLineEdit::Normal, "", &ok);
+        if (!ok || idsText.isEmpty()) return;
+
+        std::vector<std::string> ids;
+        for (const auto& s : idsText.split(",", Qt::SkipEmptyParts))
+            ids.push_back(s.trimmed().toStdString());
+
+        auto graphPtr = buildGraph();
+        if (!graphPtr) return;
+
+        auto mutualUsers = xml_editor::sna::get_mutual(*graphPtr, ids);
+
+        QString out = "Mutual Followers:\n";
+        for (const auto* u : mutualUsers)
+            out += QString("%1 (%2)\n")
+                .arg(QString::fromStdString(u->get_name()))
+                .arg(QString::fromStdString(u->get_id()));
+
+        outputArea->setText(out);
+    });
+
+    QObject::connect(suggestButton, &QPushButton::clicked, [&]() {
+        bool ok;
+        QString id = QInputDialog::getText(&window, "Suggest Users", "User ID:", QLineEdit::Normal, "", &ok);
+        if (!ok || id.isEmpty()) return;
+
+        auto graphPtr = buildGraph();
+        if (!graphPtr) return;
+
+        auto suggestions = xml_editor::sna::get_suggestions(*graphPtr, id.toStdString());
+
+        QString out = "Suggested Users:\n";
+        for (const auto* u : suggestions)
+            out += QString("%1 (%2)\n")
+                .arg(QString::fromStdString(u->get_name()))
+                .arg(QString::fromStdString(u->get_id()));
+
+        outputArea->setText(out);
+    });
+
+    QObject::connect(searchWordButton, &QPushButton::clicked, [&]() {
+        bool ok;
+        QString word = QInputDialog::getText(&window, "Search Word", "Word:", QLineEdit::Normal, "", &ok);
+        if (!ok || word.isEmpty()) return;
+
+        auto graphPtr = buildGraph();
+        if (!graphPtr) return;
+
+        auto posts = xml_editor::sna::search_by_word(*graphPtr, word.toStdString());
+
+        QString out = "Posts containing \"" + word + "\":\n\n";
+        for (const auto* p : posts)
+            out += QString("[%1]: %2\n\n")
+                .arg(QString::fromStdString(p->get_author_id()))
+                .arg(QString::fromStdString(p->get_text()));
+
+        outputArea->setText(out);
+    });
+
+    QObject::connect(searchTopicButton, &QPushButton::clicked, [&]() {
+        bool ok;
+        QString topic = QInputDialog::getText(&window, "Search Topic", "Topic:", QLineEdit::Normal, "", &ok);
+        if (!ok || topic.isEmpty()) return;
+
+        auto graphPtr = buildGraph();
+        if (!graphPtr) return;
+
+        auto posts = xml_editor::sna::search_by_topic(*graphPtr, topic.toStdString());
+
+        QString out = "Posts under topic \"" + topic + "\":\n\n";
+        for (const auto* p : posts)
+            out += QString("[%1]: %2\n\n")
+                .arg(QString::fromStdString(p->get_author_id()))
+                .arg(QString::fromStdString(p->get_text()));
+
+        outputArea->setText(out);
+    });
+
+    QObject::connect(drawGraphButton, &QPushButton::clicked, [&]() {
+        auto graphPtr = buildGraph();
+        if (!graphPtr) {
+            outputArea->setText("Invalid XML input.");
+            return;
+        }
+
+        QString saveFile = QFileDialog::getSaveFileName(&window, "Save Graph As", "", "Images (*.png *.jpg *.svg)");
+        if (saveFile.isEmpty()) return;
+
+        try {
+            // 1. Create a temporary DOT file
+            QString tempDotFile = QDir::temp().filePath("temp_graph.dot");
+            QFile file(tempDotFile);
+            if (!file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+                outputArea->setText("Failed to create temporary DOT file.");
+                return;
+            }
+
+            QTextStream out(&file);
+            out << QString::fromStdString(graphPtr->to_dot());  // write DOT to temp file
+            file.close();
+
+            // 2. Call run_graphviz on the temporary file instead of echo
+            xml_editor::draw::run_graphviz(graphPtr->to_dot(), saveFile.toStdString());
+
+            outputArea->setText("Graph saved to: " + saveFile);
+
+            // Optional: remove temp file
+            QFile::remove(tempDotFile);
+        } catch (const std::exception& e) {
+            outputArea->setText("Error: " + QString::fromStdString(e.what()));
+        }
+    });
+
+
 
     window.show();
     return app.exec();
