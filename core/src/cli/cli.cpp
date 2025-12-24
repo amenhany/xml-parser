@@ -7,13 +7,8 @@
 #include "xml_editor/util.hpp"
 
 #include <iostream>
-<<<<<<< HEAD
-#include <string.h>
-=======
 #include <stdexcept>
 #include <cstring>
-#include <optional>
->>>>>>> remotes/origin/graph
 
 namespace {
 
@@ -21,7 +16,7 @@ namespace {
 
     int find_flag(const char* flag, int argc, char** argv) {
         for (int i = 1; i + 1 < argc; ++i) {
-            if (strcmp(argv[i], flag) == 0) return i;
+            if (std::strcmp(argv[i], flag) == 0) return i;
         }
         return -1;
     }
