@@ -36,6 +36,7 @@ Thumbs.db
 *.qrc.dep
 *.rcc
 *.qmake.stash
+.qtcreator/*
 
 # Logs
 *.log
