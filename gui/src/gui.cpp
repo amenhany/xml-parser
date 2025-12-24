@@ -181,10 +181,19 @@ int run_gui(int argc, char *argv[]) {
       outputArea->setText("No XML content.");
       return;
     }
+    if (!xml::is_valid(xmlText.toStdString())) {
+      outputArea->setText("XML is invalid.");
+      return;
+    }
     lastOpType = "xml";
     auto tree = xml::parse(xmlText.toStdString());
-    QString formatted = QString::fromStdString(xml::format(tree));
-    outputArea->setText(formatted);
+    if (tree) {
+      QString formatted = QString::fromStdString(xml::format(tree));
+      outputArea->setText(formatted);
+      delete tree; // Assuming tree needs to be freed if not handled by library
+    } else {
+      outputArea->setText("Error parsing XML.");
+    }
   });
 
   QObject::connect(jsonButton, &QPushButton::clicked, [&]() {
@@ -193,16 +202,29 @@ int run_gui(int argc, char *argv[]) {
       outputArea->setText("No XML content.");
       return;
     }
+    if (!xml::is_valid(xmlText.toStdString())) {
+      outputArea->setText("XML is invalid.");
+      return;
+    }
     lastOpType = "json";
     auto tree = xml::parse(xmlText.toStdString());
-    QString jsonStr = QString::fromStdString(xml::to_json(tree));
-    outputArea->setText(jsonStr);
+    if (tree) {
+      QString jsonStr = QString::fromStdString(xml::to_json(tree));
+      outputArea->setText(jsonStr);
+      delete tree;
+    } else {
+      outputArea->setText("Error parsing XML.");
+    }
   });
 
   QObject::connect(minifyButton, &QPushButton::clicked, [&]() {
     QString xmlText = getInputText();
     if (xmlText.isEmpty()) {
       outputArea->setText("No XML content.");
+      return;
+    }
+    if (!xml::is_valid(xmlText.toStdString())) {
+      outputArea->setText("XML is invalid.");
       return;
     }
     lastOpType = "xml";
@@ -214,6 +236,10 @@ int run_gui(int argc, char *argv[]) {
     QString xmlText = getInputText();
     if (xmlText.isEmpty()) {
       outputArea->setText("No XML content.");
+      return;
+    }
+    if (!xml::is_valid(xmlText.toStdString())) {
+      outputArea->setText("XML is invalid.");
       return;
     }
     lastOpType = "comp";
@@ -228,8 +254,14 @@ int run_gui(int argc, char *argv[]) {
       return;
     }
     lastOpType = "xml";
-    outputArea->setText(
-        QString::fromStdString(xml::decompress(xmlText.toStdString())));
+    try {
+      std::string decompressed = xml::decompress(xmlText.toStdString());
+      outputArea->setText(QString::fromStdString(decompressed));
+    } catch (const std::exception &e) {
+      QMessageBox::critical(&window, "Decompression Error",
+                            QString("Failed to decompress: %1").arg(e.what()));
+      outputArea->setText(QString("Error: %1").arg(e.what()));
+    }
   });
 
   QObject::connect(saveButton, &QPushButton::clicked, [&]() {
