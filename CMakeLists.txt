@@ -20,7 +20,9 @@ target_include_directories(core PUBLIC core/include)
 # --- GUI sources ---
 set(GUI_SOURCES
     gui/src/main.cpp
+    gui/src/gui.cpp
     gui/src/mainwindow.cpp
+    gui/include/gui.h
     gui/include/mainwindow.h
     gui/src/mainwindow.ui
 )
