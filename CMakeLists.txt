@@ -15,7 +15,7 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 # --- Core library ---
 file(GLOB_RECURSE CORE_SOURCES core/src/*.cpp)
 add_library(core STATIC ${CORE_SOURCES})
-target_include_directories(core PUBLIC core/include)
+target_include_directories(core PUBLIC core/include gui/include)
 
 # --- GUI sources ---
 set(GUI_SOURCES
