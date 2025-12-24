@@ -5,15 +5,14 @@
 
 namespace xml_editor::io {
 
-    std::string file_read(const std::string& file_name) {
-        std::ifstream file("resources/" + file_name);
+    std::string file_read(const std::string& fileName) {
+        std::ifstream file(fileName);
         if (!file.is_open()) {
-            std::cerr << "Could not open the file - '" << file_name << "'" << std::endl;
+            std::cerr << "Could not open the file - '" << fileName << "'" << std::endl;
             return std::string();
         }
 
-        if (file.peek() == std::ifstream::traits_type::eof())
-        {
+        if (file.peek() == std::ifstream::traits_type::eof()) {
             std::cout << "File is empty." << std::endl;
             return std::string();
         }

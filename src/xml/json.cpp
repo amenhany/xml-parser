@@ -9,6 +9,19 @@ namespace xml_editor::xml {
         return string(level, '\t');
     }
 
+    static string format_value(const string& value) {
+        string result = "";
+        for (char c : value) {
+            if (c == '\n') {
+                result += "\\n";
+            }
+            else {
+                result += c;
+            }
+        }
+        return result;
+    }
+
     //check if a parent has multiple children with the same tag
     static bool has_twins(TreeNode* parent, const string& tag) {
         if (!parent || parent->children.empty())
@@ -43,7 +56,7 @@ namespace xml_editor::xml {
     // Check if all children have the same tag
     static bool parent_has_twin_children(TreeNode* node) {
         if (!node || node->children.empty()) return false;
-        if (node->children.size() == 1) return false;
+        if (node->children.size() == 1) return node->tag == node->children[0]->tag + 's';
 
         string first_tag = node->children[0]->tag;
         for (auto child : node->children) {
@@ -86,7 +99,7 @@ namespace xml_editor::xml {
             else {
                 // Leaf node
                 json += ",\n";
-                json += tab(level) + "\"" + node->value + "\"";
+                json += tab(level) + "\"" + format_value(node->value) + "\"";
             }
 
             // Check if we need to close the array
@@ -124,7 +137,7 @@ namespace xml_editor::xml {
                 json += tab(level) + "}";
             }
             else {
-                json += tab(level) + "\"" + node->value + "\"";
+                json += tab(level) + "\"" + format_value(node->value) + "\"";
             }
             return;
         }
@@ -189,10 +202,10 @@ namespace xml_editor::xml {
         else {
             // Leaf node
             if (!in_twin_array) {
-                json += tab(level) + "\"" + node->tag + "\": \"" + node->value + "\"";
+                json += tab(level) + "\"" + node->tag + "\": \"" + format_value(node->value) + "\"";
             }
             else {
-                json += tab(level) + "\"" + node->value + "\"";
+                json += tab(level) + "\"" + format_value(node->value) + "\"";
             }
         }
         if (!last) json += ",";
@@ -215,7 +228,7 @@ namespace xml_editor::xml {
         }
         else {
             json += "{\n";
-        }        
+        }
 
         // Traverse root's children
         for (int i = 0; i < root->children.size(); i++) {

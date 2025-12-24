@@ -43,6 +43,8 @@ file(GLOB_RECURSE BACKEND_SOURCES
     src/tree/*.cpp
     src/io/*.cpp
     src/cli/*.cpp
+    src/graph/*.cpp
+    src/graph/user/*.cpp
 )
 
 # ---------------------------
