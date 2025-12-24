@@ -157,9 +157,10 @@ int run_gui(int argc, char *argv[]) {
       QMessageBox::information(&window, "Validation", "XML is valid!");
       outputArea->setPlainText(xmlText);
     } else {
-      QString errorMessage = QString("XML has %1 errors. Click OK to see the "
+      QString errorMessage = QString("XML has %1 error%2. Click OK to see the "
                                      "fixed version in the output area.")
-                                 .arg(xml::get_error_count());
+                                 .arg(xml::get_error_count())
+                                 .arg(xml::get_error_count() > 1 ? "s" : "");
       QString detailedErrors;
       for (auto &err : xml::get_errors()) {
         detailedErrors += QString("Line %1: %2\n")

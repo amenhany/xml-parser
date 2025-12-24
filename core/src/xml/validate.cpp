@@ -128,7 +128,7 @@ bool is_valid(const std::string &xmlText) {
         tags.pop();
 
         all_errors.push_back(
-            {lineNumber, "Missing closing tag </" + openTag + "> added"});
+            {lineNumber, "Missing closing tag </" + openTag + ">"});
       }
     }
 
@@ -139,7 +139,7 @@ bool is_valid(const std::string &xmlText) {
 
   while (!tags.empty()) { // stack not empty
     all_errors.push_back(
-        {lastLine, "Missing closing tag </" + tags.top() + "> added"});
+        {lastLine, "Missing closing tag </" + tags.top() + ">"});
     fixed_lines.push_back("</" + tags.top() + ">");
     tags.pop();
   }

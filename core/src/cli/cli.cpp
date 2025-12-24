@@ -17,7 +17,7 @@ namespace {
     using xml_editor::cli::Command;
 
     int find_flag(const char* flag, int argc, char** argv) {
-        for (int i = 1; i + 1 < argc; ++i) {
+        for (int i = 1; i < argc; i++) {
             if (std::strcmp(argv[i], flag) == 0)
                 return i;
         }
@@ -121,7 +121,10 @@ namespace xml_editor::cli {
                 return;
             }
 
-            std::cout << xml::get_error_count() << " Errors Found\nError Log\n";
+            int errorCount = xml::get_error_count();
+            std::cout << errorCount;
+            errorCount > 1 ? std::cout << " Errors" : std::cout << " Error";
+            std::cout << " Found\nError Log\n";
             xml::print_errors();
 
             if (f == -1)
@@ -156,7 +159,7 @@ namespace xml_editor::cli {
                 int idx = find_flag("-ids", argc, argv);
                 std::string ids;
 
-                if (idx <= -1) {
+                if (idx <= -1 || idx + 1 >= argc) {
                     std::cout << "No IDs given\n";
                     return;
                 }
@@ -181,7 +184,7 @@ namespace xml_editor::cli {
                 int idx = find_flag("-id", argc, argv);
                 std::string id;
 
-                if (idx <= -1) {
+                if (idx <= -1 || idx + 1 >= argc) {
                     std::cout << "No ID given\n";
                     return;
                 }
@@ -207,7 +210,7 @@ namespace xml_editor::cli {
                 bool isTopic = std::strcmp(argv[idx], "-t") == 0;
                 std::string keyword;
 
-                if (idx <= -1) {
+                if (idx <= -1 || idx + 1 >= argc) {
                     std::cout << "No keyword given\n";
                     return;
                 }
