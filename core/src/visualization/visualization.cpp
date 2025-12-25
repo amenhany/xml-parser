@@ -1,10 +1,12 @@
 #include "xml_editor/visualization.hpp"
 #include "xml_editor/util.hpp"
+#include "xml_editor/io.hpp"
 
 #include <algorithm>
 #include <cctype>
 #include <stdexcept>
 #include <unordered_set>
+#include <cstdlib>
 
 
 namespace xml_editor::draw {
@@ -23,8 +25,9 @@ void run_graphviz(const std::string &graph, const std::string &outputPath) {
   if (!supported_formats.count(extension))
     throw std::runtime_error("Unsupported extension: ." + extension);
 
-  std::string command = "echo \"" + graph + "\" | dot -T" + extension +
-                        " -o \"" + outputPath + "\"";
-  system(command.c_str());
+  std::string dotFile = outputPath + ".dot";
+  io::file_write(dotFile, graph, 0);
+  system(("dot -T" + extension + " \"" + dotFile + "\" -o \"" + outputPath + "\"").c_str());
+  std::remove(dotFile.c_str());
 }
 } // namespace xml_editor::draw
